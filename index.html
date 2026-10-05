@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Lost and Found Platform</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fa;
+            color: #222;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #ddd;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 10px;
+            font-size: 42px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 18px;
+        }
+
+        nav {
+            background: #222;
+            padding: 14px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 16px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        section {
+            background: white;
+            margin-bottom: 24px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .feature {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 14px;
+            background: #e8f5e9;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 18px;
+            background: #222;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Campus Lost and Found Platform</h1>
+    <p>校园失物招领平台</p>
+    <p>Software Engineering Course Project · D1-Team8</p>
+</header>
+
+<nav>
+    <a href="#overview">Overview</a>
+    <a href="#features">Features</a>
+    <a href="#workflow">Workflow</a>
+    <a href="#team">Team</a>
+    <a href="#status">Status</a>
+</nav>
+
+<main>
+
+    <section id="overview">
+        <h2>Project Overview</h2>
+
+        <p>
+            The Campus Lost and Found Platform provides a centralized and
+            searchable place for lost-and-found information on campus.
+        </p>
+
+        <p>
+            Lost-item notices are currently scattered across different
+            communication channels and may quickly become buried by newer
+            messages. Our platform aims to reduce repeated searching and
+            provide a clear process from reporting an item to successful
+            collection.
+        </p>
+    </section>
+
+    <section id="features">
+        <h2>Main Features</h2>
+
+        <div class="features">
+
+            <div class="feature">
+                <h3>Report Items</h3>
+                <p>
+                    Post and update lost or found notices with consistent
+                    item information.
+                </p>
+            </div>
+
+            <div class="feature">
+                <h3>Search & Filter</h3>
+                <p>
+                    Search notices by item type, date, location and current
+                    status.
+                </p>
+            </div>
+
+            <div class="feature">
+                <h3>Match Suggestions</h3>
+                <p>
+                    Receive ranked suggestions for potentially matching
+                    lost and found items.
+                </p>
+            </div>
+
+            <div class="feature">
+                <h3>Private Claims</h3>
+                <p>
+                    Submit ownership evidence privately and communicate
+                    during the claim process.
+                </p>
+            </div>
+
+            <div class="feature">
+                <h3>Collection Tracking</h3>
+                <p>
+                    Track claim decisions and confirm successful return
+                    of an item.
+                </p>
+            </div>
+
+            <div class="feature">
+                <h3>Moderator Review</h3>
+                <p>
+                    Handle inappropriate notices, duplicates and disputed
+                    claims.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="workflow">
+        <h2>Case Workflow</h2>
+
+        <p>
+            <strong>Open</strong>
+            →
+            <strong>Claim under review</strong>
+            →
+            <strong>Awaiting collection</strong>
+            →
+            <strong>Returned</strong>
+        </p>
+
+        <p>
+            Rejected or withdrawn claims leave the item available for
+            other possible matches.
+        </p>
+    </section>
+
+    <section id="team">
+        <h2>Team</h2>
+
+        <p><strong>Group:</strong> D1-Team8</p>
+        <p><strong>Team Name:</strong> 菜鸟驿站</p>
+
+        <p>
+            Our product areas include Reporting and Case Records,
+            Discovery and Alerts, and Claims and Collection.
+        </p>
+    </section>
+
+    <section id="status">
+        <h2>Project Status</h2>
+
+        <p class="status">
+            Project Proposal / Requirements Confirmation
+        </p>
+
+        <p>
+            The project is currently in the initial requirements and
+            planning stage.
+        </p>
+
+        <a class="button"
+           href="https://github.com/escape0007/campus-lost-and-found-platform">
+            View GitHub Repository
+        </a>
+    </section>
+
+</main>
+
+<footer>
+    <p>
+        D1-Team8 · Software Engineering ·
+        Macau University of Science and Technology
+    </p>
+</footer>
+
+</body>
+</html>
