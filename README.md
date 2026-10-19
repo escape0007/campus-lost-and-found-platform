@@ -9,10 +9,10 @@ This repository hosts the project information website and public planning summar
 ## Current status — 19 October 2026
 
 - Requirements baseline: **Task2 User Requirements Specification (SRS), v1.2, 18 October 2026**.
-- T01–T04 are recorded as completed and reviewed: requirements analysis, first-release scope, shared notice/state design, and ownership/reuse planning.
+- **W1 documentation and planning: 5/5 tasks delivered and reviewed successfully (100%), completed 19 October 2026.** T01–T05 cover requirements analysis, first-release scope, shared notice/state design, ownership/reuse planning, and the project website/plan update.
 - T03 defines fields and workflow rules. T04 confirms responsibilities and records component candidates; final component selection and environment validation remain open.
 - Business features and acceptance targets have **not yet been verified**. Completed planning documents do not establish an implemented or tested application.
-- W1 closes on **20 October 2026**. The other five week boundaries remain unchanged.
+- W1's planned deadline remains **20 October 2026**; its documentation and planning work was completed on 19 October. The other five week boundaries remain unchanged.
 
 See the [six-week project plan](docs/project-plan.md) for responsibilities, outstanding customer decisions and future acceptance work, and the [change log](CHANGELOG.md) for the reasons behind this update.
 

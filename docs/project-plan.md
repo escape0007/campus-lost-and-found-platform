@@ -8,7 +8,7 @@
 
 The project proposal is dated 6 October 2026. Task2 v1.0 was drafted on 15 October; v1.1 integrated the Team7 questionnaire on 18 October, and v1.2 clarified wording, workflow exceptions, alert timing and test conditions on the same date. T03 records shared notice fields and case states; T04 confirms ownership and records reuse candidates and environment constraints.
 
-T01–T04 are recorded as completed, with review passed, in the team's current progress tracker. This describes the planning deliverables. Application functions, component integration and acceptance results remain unverified.
+The latest tracker records **T01–T05 as completed with review passed: 5/5 tasks (100%)**, with W1 documentation and planning completed on **19 October 2026**. This includes the T05 project website and plan update. The planned W1 deadline remains 20 October. This completion refers to documentation and planning; application functions, component integration and acceptance results remain unverified.
 
 The customer evidence consists of **two student responses from Team7, collected on 18 October 2026**. One respondent reported a recent loss. Both selected a phone as their likely device. Reporting and search received the most selections, while matching and alerts received none in the priority question; all F1–F5 outcomes nevertheless remain in scope. That question requested three choices per respondent but its export contains seven selections, so it does not establish a reliable full ranking. The sample does not establish campus-wide demand, performance or usability.
 
@@ -38,7 +38,7 @@ The release uses phone/laptop browsers. Automatic image recognition, native mobi
 
 | Week | Calendar dates | Planned work and evidence |
 | --- | --- | --- |
-| **W1 — Confirm requirements** | **12–20 October 2026** | Complete the Team7 survey analysis and SRS v1.2; agree first-release scope, notice fields, states and responsibilities; record reuse candidates; update the information website and plan. |
+| **W1 — Confirm requirements** | **12–20 October 2026** | Team7 survey analysis and SRS v1.2; first-release scope, notice fields, states and responsibilities; reuse candidates; information website and plan. **Documentation/planning delivered and reviewed: 5/5 (100%), completed 19 October.** Business functions and acceptance tests remain unverified. |
 | **W2 — Design and reporting** | **19–25 October 2026** | Produce UML use-case/state diagrams, modules and mobile page sketches; build accounts, reporting, basic browsing and manual search; review outstanding decisions with Team7. |
 | **W3 — Claims, returns and moderation** | **26 October–1 November 2026** | Implement private evidence and conversations, claim decisions, atomic single approval, two-party return confirmation, assigned review and dispute handling; demonstrate the core return flow without requiring matching. |
 | **W4 — Matching, alerts and integration** | **2–8 November 2026** | Add explained ranking, alert preferences and deduplication; calibrate with practice cases; integrate manual-search and suggested-match journeys with claims and linked closure. |
@@ -61,7 +61,7 @@ Rotating pairs check reporting/discovery, matching/claims and returns/moderation
 
 | Topic | Current baseline or proposal | Confirmation still required |
 | --- | --- | --- |
-| Access and visibility | Sign-in required; no public contact fields; only assigned moderators may access private cases | Guest browsing, notice audiences and moderator access, because the survey choices are mixed |
+| Access and visibility | Sign-in required; no public contact fields; private-case access is limited to the claimant, found-notice author and assigned moderator | Guest browsing, notice audiences and moderator access, because the survey choices are mixed |
 | Claims and disputes | Two-party confirmation, one approval, held competing claims and assigned dispute review | Approved-cancellation rules, held-claim behaviour and dispute exceptions |
 | Alerts | Users can choose new-match alerts or manual checking | Default choice and preference wording |
 | Operating limits | Field/capacity limits and data-retention periods are team proposals | Final numeric values, including 90-day case-content removal, 180-day minimal audit retention and seven-day backup expiry |

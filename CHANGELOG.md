@@ -2,10 +2,17 @@
 
 Changes to the public project information and delivery plan. Dates use the project's Asia/Macau calendar. Planning updates do not imply implemented features or passed acceptance tests.
 
+## 2026-10-19 — Follow-up review and W1 progress reconciliation
+
+- Rechecked the public site's requirements coverage, schedule, responsibilities, links and separation of planning progress from application validation.
+- Reconciled the latest tracker: **T01–T05 are complete and have passed review, 5/5 (100%)**, with W1 documentation and planning completed on **19 October 2026**. The planned deadline remains **20 October**.
+- Updated the website's W1 card, current-status summary and project plan to use that same scope and progress record. This does not claim implemented business features, passed acceptance tests, or approval from Team7 or a teaching assistant.
+- Clarified the detailed plan's private-case access rule: the claimant, found-notice author and assigned moderator are the permitted participants.
+
 ## 2026-10-19 — T05 website and plan update
 
 - Updated the public project summary to the **Task2 SRS v1.2** requirements baseline dated 18 October 2026.
-- Recorded the current reviewed completion of T01–T04, while separating completed planning documents from unverified business functions and acceptance targets.
+- Recorded the reviewed planning deliverables, while separating document completion from unverified business functions and acceptance targets; the follow-up entry above records the latest full W1 status.
 - Added the six-week calendar, named owners and reviewers, Team7 decisions awaiting review, future acceptance work and technical candidates in the [project plan](docs/project-plan.md).
 - Kept the **20 October W1 deadline** and all other week boundaries; documented the resulting overlap with W2 rather than shifting the project calendar.
 - Explained why the private return workflow precedes matching/alerts and retained all F1–F5 outcomes.
