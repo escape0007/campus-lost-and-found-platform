@@ -1,93 +1,50 @@
 # Campus Lost and Found Platform
 
-A Software Engineering course project developed by **D1-Team8** at Macau University of Science and Technology.
+Software Engineering course project by **D1-Team8 · 菜鸟驿站**, Macau University of Science and Technology.
 
-## Project Overview
+This repository hosts the project information website and public planning summaries. The planned product is a responsive website that brings campus lost-and-found notices into one searchable place and supports private verification and confirmed collection.
 
-The Campus Lost and Found Platform is designed to provide a centralized and searchable place for lost-and-found information on campus.
+**Project website:** <https://escape0007.github.io/campus-lost-and-found-platform/>
 
-Currently, lost-item notices are often scattered across different WeChat groups and may quickly become buried by newer messages. Students may repeatedly search or ask about an item even when a matching notice has already been posted elsewhere.
+## Current status — 19 October 2026
 
-Our platform aims to reduce repeated searching and provide a clear process from reporting an item to successful collection.
+- Requirements baseline: **Task2 User Requirements Specification (SRS), v1.2, 18 October 2026**.
+- T01–T04 are recorded as completed and reviewed: requirements analysis, first-release scope, shared notice/state design, and ownership/reuse planning.
+- T03 defines fields and workflow rules. T04 confirms responsibilities and records component candidates; final component selection and environment validation remain open.
+- Business features and acceptance targets have **not yet been verified**. Completed planning documents do not establish an implemented or tested application.
+- W1 closes on **20 October 2026**. The other five week boundaries remain unchanged.
 
-## Target Users
+See the [six-week project plan](docs/project-plan.md) for responsibilities, outstanding customer decisions and future acceptance work, and the [change log](CHANGELOG.md) for the reasons behind this update.
 
-The first version of the system is mainly designed for:
+## First-release scope and owners
 
-- Students who have lost items on campus
-- Students who have found items on campus
-- Authorized moderators who handle duplicate notices, inappropriate content, and disputed claims
+All F1–F5 outcomes remain required. The SRS maps them to 11 Must functional requirements, REQ-1.1–REQ-1.11.
 
-## Main Features
+| Outcome | Planned capability | Owner | Reviewer |
+| --- | --- | --- | --- |
+| F1 — Reporting and records | Create, update and archive notices; required-field guidance and history | 庄薇琪 | 刘昱彤 |
+| F2 — Discovery and alerts | Manual search and filters, explained ranked matches, alert preferences and deduplication | 刘昱彤 | 姚宇佳 |
+| F3–F5 — Claims, returns and moderation | Private evidence and conversation, claim decisions, single approval, two-party return confirmation and dispute review | 姚宇佳 | 庄薇琪 |
 
-- Post and update lost or found notices
-- Search notices by item type, date, location, and status
-- Receive ranked suggestions for possible matches
-- Receive alerts when new relevant matches are found
-- Submit private ownership claims
-- Discuss claim evidence privately
-- Track claim and collection status
-- Confirm successful return of an item
-- Report inappropriate or duplicate notices
-- Moderator review for disputes and conflicting claims
+Implementation is planned in this order: **accounts, reporting and manual search → claims, returns and moderation → matching and alerts**. All members contribute to design, implementation, testing, documentation and demonstration; the six-week effort remains approximately 144 person-hours.
 
-## Case Workflow
+A match is a suggestion, not ownership proof. An item becomes **Returned** only after both handover parties confirm and any outstanding dispute is resolved. **Closed** means archived and does not certify physical return. Private cases are restricted to their participants and an assigned moderator under the current requirements baseline.
 
-A typical found-item case follows the process:
+Automatic photo recognition, native mobile apps, payments, delivery, live tracking and WeChat/private-message integration are outside the first release. University single sign-on, official staff participation and paid hosting are not project dependencies.
 
-Open  
-→ Claim under review  
-→ Awaiting collection  
-→ Returned
+## Preview the information website locally
 
-Rejected or withdrawn claims will return the item to the available state.
+From the repository directory, run:
 
-## Project Scope
+```sh
+python3 -m http.server 8000 --bind 127.0.0.1
+```
 
-The first release will be a web-based system that can be used on both laptops and mobile devices.
+Open <http://127.0.0.1:8000/>. This serves the static project website; it does not start a lost-and-found application backend.
 
-The initial version will include:
+## Public documentation
 
-- User accounts
-- Lost and found notices
-- Search and filtering
-- Suggested matches
-- In-site alerts
-- Private claims
-- Collection confirmation
-- Moderator review
+- [Project plan and requirements summary](docs/project-plan.md)
+- [Change log](CHANGELOG.md)
 
-The following features are currently outside the project scope:
-
-- Automatic image recognition
-- Native mobile application
-- Payments
-- Courier delivery
-- Live location tracking
-- Direct WeChat integration
-
-## Team
-
-**Group:** D1-Team8  
-**Team Name:** 菜鸟驿站
-
-### Product Areas
-
-- **Reporting and Case Records**
-- **Discovery and Alerts**
-- **Claims and Collection**
-
-All team members will participate in requirements analysis, design, programming, testing, documentation, and presentation.
-
-## Project Status
-
-**Current Stage:** Project Proposal / Requirements Confirmation
-
-Planned development period: 6 weeks.
-
-## Course Information
-
-**Course:** Software Engineering  
-**Institution:** Macau University of Science and Technology  
-**Faculty:** Faculty of Innovation Engineering  
-**School:** School of Computer Science and Engineering
+These summaries omit student numbers, private contact details, internal progress links and the original course documents.
