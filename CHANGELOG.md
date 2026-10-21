@@ -2,6 +2,15 @@
 
 Changes to the public project information and delivery plan. Dates use the project's Asia/Macau calendar. Planning updates do not imply implemented features or passed acceptance tests.
 
+## 2026-10-22 — T08 local notice implementation
+
+- Added the Java/Spring Boot notice backend and browser interface for creating, editing and archiving notices, with stable links, history, author permissions, optimistic version checks and idempotent writes.
+- Added optional JPEG/PNG upload validation and pixel re-encoding without source metadata. Photos are stored as database BLOBs in the same transaction as notice changes.
+- Added local H2 file persistence and fictional loopback-only `alice`/`bob` sessions. The full T09 account system and PostgreSQL verification remain separate work.
+- Added integration guards for unresolved claims and active reservations, including linked lost notices. These guards and test fixtures do not implement the T15–T18 claim/return/moderation workflows.
+- Recorded **28 automated backend tests passed, zero failures/errors/skips**, and successful executable JAR packaging. The compiler target is Java 21; the recorded verification runtime is JDK 25.0.2, not a separately tested Java 21 runtime.
+- Added the [T08 delivery and local run guide](docs/t08-delivery.md). Complete AT-02/03 user and workflow-integration acceptance remains open; a local browser lifecycle and restart-persistence check passed, while full browser/volunteer acceptance and backend deployment remain open.
+
 ## 2026-10-19 — Follow-up review and W1 progress reconciliation
 
 - Rechecked the public site's requirements coverage, schedule, responsibilities, links and separation of planning progress from application validation.
