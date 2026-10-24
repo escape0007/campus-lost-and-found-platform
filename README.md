@@ -2,19 +2,20 @@
 
 Software Engineering course project by **D1-Team8 · 菜鸟驿站**, Macau University of Science and Technology.
 
-This repository hosts the project information website and public planning summaries. The planned product is a responsive website that brings campus lost-and-found notices into one searchable place and supports private verification and confirmed collection.
+This repository contains the project information website, planning summaries, and a runnable local Java implementation of **T08: notice creation, editing and archiving**. The complete planned product also includes discovery, private claims and confirmed collection.
 
 **Project website:** <https://escape0007.github.io/campus-lost-and-found-platform/>
 
-## Current status — 19 October 2026
+## Current status — 22 October 2026
 
 - Requirements baseline: **Task2 User Requirements Specification (SRS), v1.2, 18 October 2026**.
 - **W1 documentation and planning: 5/5 tasks delivered and reviewed successfully (100%), completed 19 October 2026.** T01–T05 cover requirements analysis, first-release scope, shared notice/state design, ownership/reuse planning, and the project website/plan update.
-- T03 defines fields and workflow rules. T04 confirms responsibilities and records component candidates; final component selection and environment validation remain open.
-- Business features and acceptance targets have **not yet been verified**. Completed planning documents do not establish an implemented or tested application.
+- **T08 is implemented locally** with a browser interface, authenticated author checks, persistent notices/photos, stable links, revision history, version conflicts and guarded archiving. **28 automated backend tests passed** with zero failures, errors or skips; an executable JAR was built.
+- The build targets **Java 21**; the recorded build/test runtime is **JDK 25.0.2**. H2 file storage is the verified local configuration. PostgreSQL and a Java 21 runtime still require separate verification.
+- T09 full account onboarding and T15–T18 claim/return/moderation workflows are not completed by T08. Complete AT-02/03 acceptance, including volunteer and real-workflow integration checks, remains open. A local browser lifecycle and restart-persistence check also passed; full multi-browser and volunteer acceptance remains open.
 - W1's planned deadline remains **20 October 2026**; its documentation and planning work was completed on 19 October. The other five week boundaries remain unchanged.
 
-See the [six-week project plan](docs/project-plan.md) for responsibilities, outstanding customer decisions and future acceptance work, and the [change log](CHANGELOG.md) for the reasons behind this update.
+See the [T08 delivery and local run guide](docs/t08-delivery.md), [six-week project plan](docs/project-plan.md) for responsibilities, outstanding customer decisions and future acceptance work, and the [change log](CHANGELOG.md) for the reasons behind this update.
 
 ## First-release scope and owners
 
@@ -32,9 +33,23 @@ A match is a suggestion, not ownership proof. An item becomes **Returned** only 
 
 Automatic photo recognition, native mobile apps, payments, delivery, live tracking and WeChat/private-message integration are outside the first release. University single sign-on, official staff participation and paid hosting are not project dependencies.
 
+## Run the T08 application locally
+
+Use Maven and a JDK; the recorded verification used **JDK 25.0.2** with compiler release **21**. From the repository directory:
+
+```sh
+cd backend
+mvn clean package
+java -jar target/campus-lost-found-0.1.0.jar
+```
+
+Open <http://127.0.0.1:8080/app/>. The first Maven build downloads dependencies. The two fictional local accounts are **`alice`** and **`bob`**, both with password **`campus-demo-2026`**. The application binds to loopback only; these accounts are a trusted local test adapter, not the completed T09 account system.
+
+When started from `backend`, H2 persists notices and re-encoded photos under **`backend/data/`**. Keep that directory to preserve data between restarts. The backend and static information website are separate: **GitHub Pages does not run or deploy this backend**.
+
 ## Preview the information website locally
 
-From the repository directory, run:
+From the repository root (not `backend`), run:
 
 ```sh
 python3 -m http.server 8000 --bind 127.0.0.1
@@ -44,6 +59,7 @@ Open <http://127.0.0.1:8000/>. This serves the static project website; it does n
 
 ## Public documentation
 
+- [T08 implementation, verification and local run guide](docs/t08-delivery.md)
 - [Project plan and requirements summary](docs/project-plan.md)
 - [Change log](CHANGELOG.md)
 
