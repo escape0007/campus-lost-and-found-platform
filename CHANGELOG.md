@@ -2,6 +2,13 @@
 
 Changes to the public project information and delivery plan. Dates use the project's Asia/Macau calendar. Planning updates do not imply implemented features or passed acceptance tests.
 
+## 2026-10-25 — T10 flow review and T09 integration
+
+- Integrated the delivered T09 account/source archive on the T08 notice module; ordinary startup now requires registration.
+- Fixed request timeout recovery, misleading post-save errors, sign-out interaction races and stale registration CSRF recovery.
+- Passed 44 backend tests, 12 frontend VM scenarios and 9 in-app browser checks, including a committed-response timeout/retry and stale-window conflict.
+- Recorded unexecuted T11 search/filter checks and six-person/multi-browser acceptance; the full manual-search flow remains unreleased. See [T10 review](docs/t10-review.md).
+
 ## 2026-10-22 — T08 local notice implementation
 
 - Added the Java/Spring Boot notice backend and browser interface for creating, editing and archiving notices, with stable links, history, author permissions, optimistic version checks and idempotent writes.

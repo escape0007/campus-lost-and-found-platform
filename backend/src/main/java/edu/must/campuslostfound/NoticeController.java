@@ -3,9 +3,7 @@ package edu.must.campuslostfound;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.*;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,16 +12,11 @@ import static edu.must.campuslostfound.NoticeModels.*;
 @RestController
 @RequestMapping("/api")
 class NoticeController {
-    private final NoticeService service;private final PhotoProcessor photos;
-    NoticeController(NoticeService service,PhotoProcessor photos) {this.service=service;this.photos=photos;}
+    private final NoticeService service;private final PhotoProcessor photos;private final AccountService accounts;
+    NoticeController(NoticeService service,PhotoProcessor photos,AccountService accounts) {this.service=service;this.photos=photos;this.accounts=accounts;}
     private Actor actor(Principal user) {
         if(user==null) throw new ApiProblem(HttpStatus.UNAUTHORIZED,"SIGN_IN_REQUIRED","Please sign in to continue.");
-        return new Actor(user.getName(),switch(user.getName()) {case "alice"->"Alice Demo";case "bob"->"Bob Demo";default->"Student";});
-    }
-    @GetMapping("/session") Map<String,Object> session(HttpServletRequest request,Principal user) {
-        CsrfToken token=(CsrfToken)request.getAttribute(CsrfToken.class.getName());
-        Actor actor=user==null?null:actor(user);
-        return Map.of("authenticated",user!=null,"username",user==null?"":actor.id(),"displayName",user==null?"":actor.displayName(),"csrfToken",token.getToken(),"csrfHeaderName",token.getHeaderName());
+        return accounts.actor(user.getName());
     }
     @GetMapping("/options") Map<String,Object> options() {
         return Map.of("categories",NoticeService.CATEGORIES.stream().map(s->Map.of("value",s,"label",label(s))).toList(),
