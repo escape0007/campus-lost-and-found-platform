@@ -46,3 +46,27 @@ CREATE INDEX IF NOT EXISTS idx_guard_lost ON claim_guards(lost_id,status);
 CREATE TABLE IF NOT EXISTS active_reservations (
  notice_id VARCHAR(36) PRIMARY KEY REFERENCES notices(id), claim_id VARCHAR(36) NOT NULL
 );
+-- Accounts are platform identities only. campus_verified cannot be set, and registration always stores STUDENT.
+CREATE TABLE IF NOT EXISTS accounts (
+ id VARCHAR(36) PRIMARY KEY,
+ username VARCHAR(32) NOT NULL,
+ username_key VARCHAR(32) NOT NULL,
+ display_name VARCHAR(80) NOT NULL,
+ password_hash VARCHAR(100) NOT NULL,
+ role VARCHAR(20) NOT NULL DEFAULT 'STUDENT' CHECK (role IN ('STUDENT','MODERATOR')),
+ status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','DISABLED')),
+ campus_verified BOOLEAN NOT NULL DEFAULT FALSE CHECK (campus_verified = FALSE),
+ failed_attempts INT NOT NULL DEFAULT 0,
+ window_started_at VARCHAR(40),
+ locked_until VARCHAR(40),
+ created_at VARCHAR(40) NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_accounts_username_key ON accounts(username_key);
+CREATE TABLE IF NOT EXISTS account_audit (
+ id VARCHAR(36) PRIMARY KEY,
+ actor_id VARCHAR(80) NOT NULL,
+ action VARCHAR(40) NOT NULL,
+ target VARCHAR(80) NOT NULL,
+ outcome VARCHAR(20) NOT NULL,
+ occurred_at VARCHAR(40) NOT NULL
+);

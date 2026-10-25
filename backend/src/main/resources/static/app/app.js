@@ -3,8 +3,8 @@
 (() => {
   const $ = id => document.getElementById(id);
   const state = {
-    session: null, options: null, scope: 'mine', page: 0, list: null,
-    detail: null, editor: null, latest: null, busy: false,
+    session: null, options: null, scope: 'available', page: 0, list: null,
+    detail: null, editor: null, latest: null, busy: false, signingOut: false,
     view: '', lastHash: '', routeToken: 0, previewUrls: [], closeRequest: null
   };
   const statusLabels = {
@@ -15,6 +15,7 @@
     type: 'Notice type', title: 'Title', category: 'Category', occurrenceDate: 'Date',
     approximate: 'Approximate date', area: 'Campus area', description: 'Description', photos: 'Photos'
   };
+  const REQUEST_TIMEOUT_MS = 15000;
 
   class ApiError extends Error {
     constructor(status, data) {
@@ -48,13 +49,17 @@
       }
       headers.set('Idempotency-Key', options.requestKey || uuid());
     }
-    let response;
+    const controller = new AbortController();
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; controller.abort(); }, REQUEST_TIMEOUT_MS);
+    let response, text;
     try {
-      response = await fetch(path, { credentials: 'same-origin', ...options, method, headers });
+      response = await fetch(path, { credentials: 'same-origin', ...options, method, headers, signal: controller.signal });
+      text = await response.text();
     } catch (_) {
+      if (timedOut) throw new Error('The request timed out. Your input has been kept. Check the current record or retry the same action when the connection is available.');
       throw new Error('Cannot reach the local application. Your input has been kept. Check that the server is running, then retry.');
-    }
-    const text = await response.text();
+    } finally { clearTimeout(timer); }
     let data = {};
     if (text) {
       try { data = JSON.parse(text); }
@@ -126,13 +131,24 @@
     if (view === 'list') $(`${state.scope}-nav`).setAttribute('aria-current', 'page');
   }
 
-  async function refreshSession() {
-    state.session = await api('/api/session');
-    const authenticated = Boolean(state.session.authenticated);
+  function applySessionUi() {
+    const authenticated = Boolean(state.session?.authenticated);
     $('login-view').hidden = authenticated; $('workspace').hidden = !authenticated;
     $('logout-button').hidden = !authenticated;
+    $('session-status').hidden = !authenticated;
     $('account-name').textContent = authenticated ? state.session.displayName || state.session.username : '';
+    $('account-name').title = authenticated ? `${state.session.username} · not campus identity verification` : '';
     return authenticated;
+  }
+
+  async function refreshSession() {
+    state.session = await api('/api/session');
+    return applySessionUi();
+  }
+
+  function markSignedOut() {
+    state.session = { ...(state.session || {}), authenticated: false, csrfToken: null };
+    applySessionUi();
   }
 
   async function ensureOptions() {
@@ -154,10 +170,8 @@
     if (!(error instanceof ApiError) || ![401, 403].includes(error.status)) return false;
     const sessionExpired = error.status === 401;
     if (sessionExpired) {
-      state.session = { ...(state.session || {}), authenticated: false };
+      markSignedOut();
       state.routeToken += 1;
-      $('login-view').hidden = false; $('workspace').hidden = true;
-      $('logout-button').hidden = true; $('account-name').textContent = '';
     }
     let authenticated;
     try {
@@ -195,8 +209,45 @@
     location.hash = path;
   }
 
+  function codePoints(value) { return [...value].length; }
+  function utf8Bytes(value) { return new TextEncoder().encode(value).length; }
+  function clearRegisterErrors() {
+    ['username', 'displayName', 'password'].forEach(name => { $(`error-reg-${name}`).textContent = ''; });
+    $('register-error').textContent = '';
+  }
+  function showAuth(mode) {
+    const register = mode === 'register';
+    $('auth-signin').hidden = register;
+    $('auth-register').hidden = !register;
+    $('login-error').textContent = '';
+    clearRegisterErrors();
+    (register ? $('register-username') : $('login-username')).focus();
+  }
+  function registerProblems(username, displayName, password) {
+    const fields = {};
+    if (!/^[A-Za-z0-9_]{3,32}$/.test(username)) fields.username = 'Use 3–32 letters, digits or underscores.';
+    const displayLength = codePoints(displayName);
+    if (displayLength < 2 || displayLength > 40) fields.displayName = 'Use 2–40 Unicode characters.';
+    const passwordChars = codePoints(password);
+    if (passwordChars < 10 || passwordChars > 72 || utf8Bytes(password) > 72) fields.password = 'Use 10–72 characters, at most 72 bytes. The password is stored without truncation.';
+    return fields;
+  }
+  function applyRegisterErrors(fields) {
+    clearRegisterErrors();
+    Object.entries(fields).forEach(([name, text]) => {
+      const el = $(`error-reg-${name}`);
+      if (el) el.textContent = text;
+      else $('register-error').textContent = text;
+    });
+  }
+
   async function route() {
-    const currentHash = location.hash || '#/mine';
+    if (!location.hash) history.replaceState(null, '', '#/available');
+    const currentHash = location.hash || '#/available';
+    if (state.signingOut) {
+      history.replaceState(null, '', state.lastHash || '#/available');
+      return;
+    }
     if (state.busy && ['editor', 'detail'].includes(state.view) && state.lastHash && currentHash !== state.lastHash) {
       history.replaceState(null, '', state.lastHash); message('Please wait for the current action to finish.'); return;
     }
@@ -210,7 +261,7 @@
     try {
       await ensureOptions();
       if (token !== state.routeToken) return;
-      const path = currentHash.slice(1).split('?')[0] || '/mine';
+      const path = currentHash.slice(1).split('?')[0] || '/available';
       if (path === '/new') { openEditor(null); return; }
       const match = path.match(/^\/notices\/([^/]+)$/);
       if (match) {
@@ -232,7 +283,7 @@
   async function loadList(token = ++state.routeToken) {
     setView('list');
     $('list-heading').textContent = state.scope === 'mine' ? 'My notices' : 'Available notices';
-    $('list-description').textContent = state.scope === 'mine' ? 'Your current notices and archived records, in one place.' : 'Current lost and found notices. A suggestion does not prove ownership.';
+    $('list-description').textContent = state.scope === 'mine' ? 'Your current notices and archived records, in one place.' : 'Current lost and found notices visible after sign-in. Closed means archived, not returned.';
     $('notice-list').setAttribute('aria-busy', 'true');
     $('notice-list').replaceChildren(node('div', 'loading-state', 'Loading notices…'));
     $('pagination').hidden = true;
@@ -276,6 +327,19 @@
     if (token !== state.routeToken || !state.session?.authenticated) return;
     state.detail = notice; renderDetail();
     $('detail-heading').scrollIntoView({ block: 'start' });
+  }
+
+  function showSavedNotice(notice, successText) {
+    // Successful writes already return the committed detail/history. Do not turn a
+    // failed follow-up read into a failed-write message or issue another mutation.
+    state.routeToken += 1;
+    state.detail = notice;
+    const nextHash = `#/notices/${encodeURIComponent(notice.id)}`;
+    if (location.hash !== nextHash) history.pushState(null, '', nextHash);
+    state.lastHash = nextHash;
+    renderDetail();
+    $('detail-heading').scrollIntoView({ block: 'start' });
+    message(successText);
   }
 
   function renderDetail() {
@@ -455,13 +519,10 @@
       const result = await api(editor.id ? `/api/notices/${encodeURIComponent(editor.id)}` : '/api/notices', {
         method: editor.id ? 'PUT' : 'POST', body: form, requestKey: editor.request.key
       });
-      const id = result.id || result.notice?.id || editor.id;
-      if (!id) throw new Error('The server saved a response without a notice link. Your input has been kept; check My notices before submitting again.');
+      const saved = result.notice || result;
+      if (!saved.id) throw new Error('The server returned no saved notice link. Your input has been kept; check My notices before submitting again.');
       editor.dirty = false; editor.request = null;
-      message(editor.id ? 'Changes saved. The notice link remains the same.' : 'Notice published. Keep its stable link for later updates.');
-      const nextHash = `#/notices/${encodeURIComponent(id)}`;
-      if (location.hash === nextHash) await loadDetail(id);
-      else location.hash = nextHash.slice(1);
+      showSavedNotice(saved, editor.id ? 'Changes saved. The notice link remains the same.' : 'Notice published. Keep its stable link for later updates.');
     } catch (error) {
       Object.entries(error.fields || {}).forEach(([field, text]) => fieldError(field, text));
       $('editor-error').textContent = error.message;
@@ -525,10 +586,9 @@
     if (!state.closeRequest || state.closeRequest.fingerprint !== fingerprint) state.closeRequest = { fingerprint, key: uuid() };
     state.busy = true; $('close-fields').disabled = true; $('close-submit').textContent = 'Archiving…'; $('close-error').textContent = '';
     try {
-      await api(`/api/notices/${encodeURIComponent(state.detail.id)}/close`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: fingerprint, requestKey: state.closeRequest.key });
+      const saved = await api(`/api/notices/${encodeURIComponent(state.detail.id)}/close`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: fingerprint, requestKey: state.closeRequest.key });
       state.closeRequest = null;
-      await loadDetail(state.detail.id);
-      message('Notice archived as Closed. This does not confirm physical return.');
+      showSavedNotice(saved, 'Notice archived as Closed. This does not confirm physical return.');
     } catch (error) {
       $('close-error').textContent = error.fields?.reason || error.message;
       $('close-refresh').hidden = !(error instanceof ApiError && error.status === 409);
@@ -554,12 +614,48 @@
     const link = event.target.closest('a[data-route]');
     if (link && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { event.preventDefault(); navigate(link.dataset.route); }
   });
+  $('show-register').addEventListener('click', () => showAuth('register'));
+  $('show-signin').addEventListener('click', () => showAuth('signin'));
+  $('register-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    if (state.busy) return;
+    const username = $('register-username').value.trim();
+    const displayName = $('register-display').value.trim();
+    const password = $('register-password').value;
+    const fields = registerProblems(username, displayName, password);
+    if (Object.keys(fields).length) { applyRegisterErrors(fields); return; }
+    state.busy = true; $('register-fields').disabled = true; $('register-submit').textContent = 'Creating account…';
+    clearRegisterErrors();
+    try {
+      if (!state.session?.csrfToken) await refreshSession();
+      await api('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, displayName, password })
+      });
+      $('register-password').value = '';
+      $('login-username').value = username;
+      $('login-password').value = '';
+      showAuth('signin');
+      message('Account created. Sign in to browse notices. This account does not verify campus identity.');
+    } catch (error) {
+      if (error.fields && Object.keys(error.fields).length) applyRegisterErrors(error.fields);
+      else $('register-error').textContent = error.message;
+      if (error instanceof ApiError && [401, 403].includes(error.status)) {
+        // Refresh a stale anonymous CSRF token without clearing or replaying the form.
+        try { await refreshSession(); } catch (_) { /* Preserve the original error and input. */ }
+      }
+    } finally {
+      state.busy = false; $('register-fields').disabled = false; $('register-submit').textContent = 'Create account';
+    }
+  });
   $('login-form').addEventListener('submit', async event => {
     event.preventDefault(); if (state.busy) return;
     const username = $('login-username').value.trim(), password = $('login-password').value;
     if (!username || !password) { $('login-error').textContent = 'Enter a username and password.'; return; }
     state.busy = true; $('login-fields').disabled = true; $('login-submit').textContent = 'Signing in…'; $('login-error').textContent = '';
     try {
+      if (!state.session?.csrfToken) await refreshSession();
       await api('/api/login', { method: 'POST', body: new URLSearchParams({ username, password }) });
       if (!await refreshSession()) throw new Error('Sign-in could not be confirmed. Please try again.');
       $('login-password').value = ''; message('');
@@ -572,13 +668,25 @@
   });
   $('logout-button').addEventListener('click', async () => {
     if (state.busy || !canLeaveEditor()) return;
-    $('logout-button').disabled = true;
+    state.busy = true; state.signingOut = true;
+    $('workspace').inert = true; $('workspace').setAttribute('aria-busy', 'true');
+    $('logout-button').disabled = true; $('logout-button').textContent = 'Signing out…';
     try {
       await api('/api/logout', { method: 'POST' });
       state.routeToken += 1; state.editor = null; state.detail = null; state.options = null; revokePreviews();
-      await refreshSession(); message('Signed out.');
+      markSignedOut(); showAuth('signin');
+      try {
+        await refreshSession();
+        message('Signed out.');
+      } catch (_) {
+        message('Signed out. The connection could not be refreshed; retry signing in when the server is available.');
+      }
     } catch (error) { if (!await handleAuthError(error)) message(error.message, true, true); }
-    finally { $('logout-button').disabled = false; }
+    finally {
+      state.busy = false; state.signingOut = false;
+      $('workspace').inert = false; $('workspace').removeAttribute('aria-busy');
+      $('logout-button').disabled = false; $('logout-button').textContent = 'Sign out';
+    }
   });
   $('refresh-list').addEventListener('click', () => { void loadList(); });
   $('previous-page').addEventListener('click', () => { if (state.page > 0) { state.page -= 1; void loadList(); } });
