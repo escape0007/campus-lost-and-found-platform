@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="D1-Team8 校园失物招领平台：六步静态流程演示、真实应用截图、课程仓库源码与本地 Java 运行说明。">
+  <title>应用演示与下载运行 · D1-Team8</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="demo.css">
+  <script src="demo.js" defer></script>
+</head>
+<body class="demo-page">
+  <a class="skip-link" href="#main">跳到内容</a>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">L/F</span><span>D1-Team8<span class="brand-sub">Campus Lost and Found</span></span></a>
+    <nav aria-label="主导航"><a href="index.html">项目展示</a><a href="#walkthrough">流程导览</a><a href="#screenshots">真实截图</a><a href="#run">下载运行</a><a href="https://github.com/MUST-Workspace/D1-team8-project">课程源码 ↗</a></nav>
+  </header>
+  <main id="main">
+    <section class="demo-hero" aria-labelledby="demo-title">
+      <div><p class="eyebrow">T19 / Interactive walkthrough</p><h1 id="demo-title">一件失物，<br>一条完整的归还路径。</h1><p class="lead">从发布公告到双方确认，了解已经完成的校园失物招领流程。点击步骤，查看每一环节的角色、操作与状态。</p><div class="hero-actions"><a class="button" href="#walkthrough">开始六步导览 <span aria-hidden="true">↓</span></a><a class="text-link" href="#run">下载并在本机运行 ↗</a></div></div>
+      <aside class="demo-boundary"><span class="demo-chip">静态界面演示</span><h2>先看流程，<br>再运行完整应用。</h2><p>本页由 GitHub Pages 托管，仅切换演示内容。不登录、不调用后端，也不收集或保存公告、证据及认领数据。</p><p>完整 Java 应用需要在本机启动。以下示例和截图均使用虚构测试数据。</p><a class="text-link" href="#run">查看本地运行方式 →</a></aside>
+    </section>
+
+    <section class="demo-section" id="walkthrough" aria-labelledby="walkthrough-title">
+      <div class="section-heading"><div><p class="eyebrow">01 / Follow the case</p><h2 id="walkthrough-title">六步，看清每个决定。</h2></div><p class="demo-section-note">示例：一只蓝色水杯<br>Demo Finder · Demo Claimant</p></div>
+      <p class="demo-intro">这是一条已通过本地浏览器验证的流程。导览中的状态卡为说明示意，不是可操作的线上业务系统。</p>
+      <div class="walkthrough-shell">
+        <div class="demo-tabs" role="tablist" aria-label="六步流程" aria-orientation="horizontal">
+          <button id="step-tab-1" role="tab" aria-selected="true" aria-controls="step-1" tabindex="0"><span>01</span>发布公告</button>
+          <button id="step-tab-2" role="tab" aria-selected="false" aria-controls="step-2" tabindex="-1"><span>02</span>人工筛选</button>
+          <button id="step-tab-3" role="tab" aria-selected="false" aria-controls="step-3" tabindex="-1"><span>03</span>私密认领</button>
+          <button id="step-tab-4" role="tab" aria-selected="false" aria-controls="step-4" tabindex="-1"><span>04</span>审核决定</button>
+          <button id="step-tab-5" role="tab" aria-selected="false" aria-controls="step-5" tabindex="-1"><span>05</span>争议复核</button>
+          <button id="step-tab-6" role="tab" aria-selected="false" aria-controls="step-6" tabindex="-1"><span>06</span>双确认归还</button>
+        </div>
+        <div class="demo-panels">
+          <article class="demo-panel" id="step-1" role="tabpanel" aria-labelledby="step-tab-1" tabindex="0">
+            <div class="step-copy"><p class="step-role">发布者 · 失主 / 拾获人</p><h3>让一条公告<br>成为寻找的起点。</h3><p>注册并登录本地应用后，选择 Lost 或 Found，填写物品、类别、时间、地点和描述，发布可检索的公告。</p><ul><li>拾获人发布 Found blue bottle demo。</li><li>失主发布自己的 Lost blue bottle demo。</li><li>公告保留稳定记录与变更历史。</li></ul></div>
+            <div class="state-preview"><p class="preview-caption">示意记录 / Fictional example</p><div class="item-symbol" aria-hidden="true">L/F</div><h4>Found blue bottle demo</h4><p>蓝色水杯 · 校园学习区</p><dl><div><dt>公告类型</dt><dd>Found · 拾获</dd></div><div><dt>当前状态</dt><dd><span class="state-badge">Open</span></dd></div><div><dt>下一步</dt><dd>等待人工查找与认领</dd></div></dl></div>
+          </article>
+          <article class="demo-panel" id="step-2" role="tabpanel" aria-labelledby="step-tab-2" tabindex="0">
+            <div class="step-copy"><p class="step-role">查找者 · 失主</p><h3>先找线索，<br>再核对细节。</h3><p>在公告列表中使用关键字和筛选条件，打开可能相关的拾获公告。人工查找可以独立完成，不必先获得匹配建议。</p><ul><li>按类型、类别、时间和地点缩小范围。</li><li>阅读公告描述，判断是否值得进一步核对。</li><li>匹配与提醒用于辅助发现，不能证明归属。</li></ul></div>
+            <div class="state-preview"><p class="preview-caption">筛选示意 / Manual discovery</p><div class="filter-example"><span>关键字：blue bottle</span><span>类型：Found</span><span>状态：Open</span></div><h4>找到一条可能相关的公告</h4><p>“外观相似”只是进一步沟通的起点。</p><dl><div><dt>后续操作</dt><dd>打开公告 → 提交私密认领</dd></div><div><dt>判断边界</dt><dd>建议 ≠ 归属证明</dd></div></dl></div>
+          </article>
+          <article class="demo-panel" id="step-3" role="tabpanel" aria-labelledby="step-tab-3" tabindex="0">
+            <div class="step-copy"><p class="step-role">认领人 ↔ 拾获人</p><h3>把识别细节<br>留在私密案件中。</h3><p>认领人提交 10–1,000 个字符的文字证据，并可关联自己仍为 Open、未被预留的丢失公告。双方在该案件内补充私密说明。</p><ul><li>不能认领自己发布的物品。</li><li>不同认领案件的证据和会话互相隔离。</li><li>普通复核员不能全局读取私密案情。</li></ul></div>
+            <div class="state-preview"><p class="preview-caption">虚构私密证据 / Example only</p><blockquote>“杯盖内侧有一个虚构的白色星形标记。”</blockquote><p>此处公开展示的文字仅为演示数据。真实证据留在本地应用的授权案件中。</p><dl><div><dt>认领状态</dt><dd><span class="state-badge">Pending</span></dd></div><div><dt>关联记录</dt><dd>Lost blue bottle demo</dd></div><div><dt>可见对象</dt><dd>案件双方；有效指派的复核员</dd></div></dl></div>
+          </article>
+          <article class="demo-panel" id="step-4" role="tabpanel" aria-labelledby="step-tab-4" tabindex="0">
+            <div class="step-copy"><p class="step-role">决定者 · 拾获人</p><h3>批准一条认领，<br>为交接保留物品。</h3><p>拾获人核对证据，填写理由批准或拒绝 Pending 认领。批准后，系统同时预留拾获物品和已关联的丢失公告。</p><ul><li>同一物品及关联丢失公告仅允许一条有效批准。</li><li>其他 Pending 认领转为 Held，不能直接批准。</li><li>批准表示等待交接，尚未确认实际归还。</li></ul></div>
+            <div class="state-preview"><p class="preview-caption">状态示意 / Approval</p><div class="state-flow"><span>Pending</span><span aria-hidden="true">↓</span><strong>Approved</strong></div><dl><div><dt>拾获公告</dt><dd><span class="state-badge">Awaiting collection</span></dd></div><div><dt>其他认领</dt><dd>Held · 等待</dd></div><div><dt>归还确认</dt><dd>双方尚未确认</dd></div></dl></div>
+          </article>
+          <article class="demo-panel" id="step-5" role="tabpanel" aria-labelledby="step-tab-5" tabindex="0">
+            <div class="step-copy"><p class="step-role">双方当事人 → 指定复核员</p><h3>有争议时暂停，<br>由指定人员复核。</h3><p>完成前提出争议会暂停归还确认。复核员必须先领取案件，才可读取该案件的私密信息；释放或全部处理完成后立即撤销权限。</p><ul><li>示例中第一次单方确认后出现交接争议。</li><li>明确恢复领取后，旧确认失效，开启新确认轮次。</li><li>复核员不能替双方确认归还，也不代表校方介入。</li></ul></div>
+            <div class="state-preview"><p class="preview-caption">真实验证路径 / Review</p><ol class="review-path"><li>提出争议 · 暂停确认</li><li>领取任务 · 指派案件访问</li><li>恢复领取 · 旧确认失效</li><li>处理完成 · 撤销案件权限</li></ol><p class="preview-rule">已批准认领的取消须经指定复核员处理；取消后释放预留，按剩余认领重新计算公告状态。</p></div>
+          </article>
+          <article class="demo-panel" id="step-6" role="tabpanel" aria-labelledby="step-tab-6" tabindex="0">
+            <div class="step-copy"><p class="step-role">交接双方 · 独立确认</p><h3>双方各自确认，<br>才记录成功归还。</h3><p>双方实际交接后，各自在本地应用确认。一次确认仍是 Awaiting collection；相关争议全部处理完并完成两次确认后，系统原子记录归还结果。</p><ul><li>拾获公告 → Returned；关联丢失公告 → Closed。</li><li>其他相关认领 → Item returned。已归还物品退出发现与新提醒。</li><li>归还后举报保留 Returned 结果与历史。</li></ul><a class="text-link" href="#screenshots">查看完成归还的真实截图 ↓</a></div>
+            <div class="state-preview returned-preview"><p class="preview-caption">最终状态 / Both confirmed</p><div class="confirmation-line"><span aria-hidden="true">✓</span> 拾获方已确认</div><div class="confirmation-line"><span aria-hidden="true">✓</span> 认领方已确认</div><dl><div><dt>Found 公告</dt><dd><span class="state-badge">Returned</span></dd></div><div><dt>关联 Lost 公告</dt><dd>Closed · 归档</dd></div></dl><p class="preview-rule"><strong>Closed ≠ Returned。</strong>单独归档不证明发生了实物归还；Returned 必须由双确认流程产生。</p></div>
+          </article>
+        </div>
+        <div class="step-controls" hidden><button class="step-control" type="button" id="previous-step">← 上一步</button><p id="step-progress" aria-live="polite" aria-atomic="true">01 / 06 · 发布公告</p><button class="step-control next-control" type="button" id="next-step">下一步 →</button></div>
+      </div>
+      <noscript><p class="demo-intro">JavaScript 已关闭，六步内容依次完整显示；下载链接和截图仍可访问。</p></noscript>
+    </section>
+
+    <section class="demo-section" id="screenshots" aria-labelledby="screenshots-title">
+      <div class="section-heading"><div><p class="eyebrow">02 / From the running application</p><h2 id="screenshots-title">真实界面，虚构测试数据。</h2></div><span class="label">本地浏览器验证 · 1 Nov 2026</span></div>
+      <p class="demo-intro">截图来自完整 Java 应用的实际操作。桌面图记录恢复领取后的双确认，移动图记录归还后举报仍保留 Returned。点击图片查看原始全图。</p>
+      <div class="screenshot-grid">
+        <figure class="screenshot-card"><a href="assets/demo/return-completed.jpg" target="_blank" rel="noopener"><img src="assets/demo/return-completed.jpg" alt="本地桌面应用中的虚构蓝色水杯认领：双方已确认，物品已归还，历史包含指定复核和重新双确认。" width="1265" height="2276" loading="lazy"></a><figcaption><strong>桌面 · 完成双确认</strong><span>双方独立确认后，记录变为已归还。打开完整截图 ↗</span></figcaption></figure>
+        <figure class="screenshot-card mobile-screenshot"><a href="assets/demo/mobile-returned.jpg" target="_blank" rel="noopener"><img src="assets/demo/mobile-returned.jpg" alt="本地移动端虚构案件在归还后提交争议，页面仍显示物品已归还并保留历史。" width="345" height="2834" loading="lazy"></a><figcaption><strong>移动端 · 归还后举报</strong><span>360 像素视口检查；不是全移动端验收。打开完整截图 ↗</span></figcaption></figure>
+      </div>
+      <p class="demo-evidence-note">T19 记录了 78 项后端测试及 18 项前端 VM 回归通过，并完成上述浏览器流程验证；T19 仍待人工复核。这些结果不替代后续可用性、性能和完整验收。<a href="docs/T19_联调与测试说明.txt">阅读完整联调与测试说明 →</a></p>
+    </section>
+
+    <section class="demo-section run-section" id="run" aria-labelledby="run-title">
+      <div class="section-heading"><div><p class="eyebrow">03 / Get the full application</p><h2 id="run-title">下载应用，在本机走完流程。</h2></div><span class="label">Java · 本地运行</span></div>
+      <div class="run-grid"><div><p>课程仓库是当前源码的主要来源。GitHub Pages 提供项目展示与静态演示，完整的账号、数据保存、认领和复核由本地 Java 服务处理。</p><div class="download-actions"><a class="button" href="https://github.com/escape0007/campus-lost-and-found-platform/releases/download/v0.1.0-t19/T19-integrated-source-runtime-2026-11-01.zip">下载运行包 ZIP <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/MUST-Workspace/D1-team8-project/archive/refs/heads/main.zip">下载课程源码</a></div><p class="small">运行包约 27.6 MB，包含已构建 JAR、源码和联调说明。<a href="https://github.com/escape0007/campus-lost-and-found-platform/releases/tag/v0.1.0-t19">v0.1.0-t19 课程演示预发布</a>由本次个人镜像提供；课程仓库仍是主要源码来源。</p><p class="small">需安装 JDK；从源码构建还需 Maven。编译目标 Java 21，本次实测 JDK 25.0.2、Maven 3.9.16。Java 21 运行时尚待单独验证。</p><p><a class="text-link" href="docs/T19_联调与测试说明.txt">T19 联调、复核员配置与限制 →</a></p></div>
+        <div class="run-instructions"><p class="code-caption">方式一：解压运行包后，在解压目录运行</p><pre><code>cd app
+java -jar campus-lost-found-0.1.0.jar</code></pre><p class="code-caption">方式二：下载课程源码，在项目目录构建</p><pre><code>cd backend
+mvn clean package
+java -jar target/campus-lost-found-0.1.0.jar</code></pre><p>服务启动后打开 <a href="http://127.0.0.1:8080/app/">http://127.0.0.1:8080/app/</a>。</p><p class="small">先注册虚构测试账号再登录；默认没有账号或审核员。需体验复核时，按 T19 文档为已注册账号配置角色并逐案领取。账号不代表校园身份认证。</p><p class="small">从 app 或 backend 启动时，数据保存在该目录下的 data/。保留此目录可继续本地记录；停止服务使用 Ctrl+C。</p></div></div>
+    </section>
+  </main>
+  <footer><div><strong>Campus Lost and Found Platform</strong><p>D1-Team8 · 菜鸟驿站<br>静态展示与演示 · Updated 1 Nov 2026</p></div><p><a href="index.html">项目进度与计划</a><br><a href="https://github.com/MUST-Workspace/D1-team8-project">主要源码：课程仓库</a></p><a href="#main">回到顶部 ↑</a></footer>
+</body>
+</html>
