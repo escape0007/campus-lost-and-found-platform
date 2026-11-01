@@ -3,7 +3,9 @@
 (() => {
   const $ = id => document.getElementById(id);
   const state = {
-    session: null, options: null, scope: 'available', page: 0, list: null,
+    session: null, options: null, scope: 'available', page: 0,
+    filters: { keyword: '', type: '', category: '', area: '', from: '', to: '', openOnly: false, size: 20 },
+    list: null,
     detail: null, editor: null, latest: null, busy: false, signingOut: false,
     view: '', lastHash: '', routeToken: 0, previewUrls: [], closeRequest: null
   };
@@ -126,9 +128,10 @@
 
   function setView(view) {
     state.view = view;
-    ['list', 'detail', 'editor'].forEach(name => { $(`${name}-view`).hidden = name !== view; });
-    $('mine-nav').removeAttribute('aria-current'); $('available-nav').removeAttribute('aria-current');
+    ['list', 'detail', 'editor', 'alerts'].forEach(name => { $(`${name}-view`).hidden = name !== view; });
+    ['mine-nav', 'available-nav', 'alerts-nav'].forEach(id => $(id).removeAttribute('aria-current'));
     if (view === 'list') $(`${state.scope}-nav`).setAttribute('aria-current', 'page');
+    if (view === 'alerts') $('alerts-nav').setAttribute('aria-current', 'page');
   }
 
   function applySessionUi() {
@@ -151,6 +154,17 @@
     applySessionUi();
   }
 
+  function fillChoices(selectId, items, placeholder) {
+    const select = $(selectId);
+    const current = select.value || '';
+    select.replaceChildren();
+    const first = node('option', '', placeholder); first.value = ''; select.append(first);
+    (items || []).forEach(item => {
+      const option = node('option', '', item.label); option.value = item.value; select.append(option);
+    });
+    select.value = (items || []).some(item => item.value === current) ? current : '';
+  }
+
   async function ensureOptions() {
     if (state.options) return;
     state.options = await api('/api/options');
@@ -163,6 +177,8 @@
         const option = node('option', '', item.label); option.value = item.value; select.append(option);
       });
     });
+    fillChoices('filter-category', state.options.categories, 'Any category');
+    fillChoices('filter-area', state.options.areas, 'Any area');
     if (state.options.today) $('notice-date').max = state.options.today;
   }
 
@@ -241,6 +257,112 @@
     });
   }
 
+  async function loadAlerts(token = state.routeToken) {
+    const status = $('alert-status');
+    const retry = $('alert-retry');
+    if (status) status.textContent = '正在读取提醒…';
+    if (retry) retry.hidden = true;
+    try {
+      const preference = await api('/api/alert-preference');
+      if (token !== state.routeToken) return;
+      const page = await api('/api/alerts');
+      if (token !== state.routeToken) return;
+      renderAlerts(preference, page);
+    } catch (error) {
+      if (token !== state.routeToken) return;
+      if (await handleAuthError(error)) return;
+      if (status) status.textContent = error.message || '提醒暂时读不出来。';
+      if (retry) retry.hidden = false;
+    }
+  }
+
+  function renderAlerts(preference, page) {
+    const alertsMode = $('alert-mode-alerts');
+    const manualMode = $('alert-mode-manual');
+    if (alertsMode) alertsMode.checked = preference.mode === 'NEW_MATCH_ALERTS';
+    if (manualMode) manualMode.checked = preference.mode === 'MANUAL_CHECKING';
+    if ($('alert-version')) $('alert-version').value = preference.version ?? '';
+    if ($('alert-save')) $('alert-save').disabled = false;
+    if ($('alert-status')) $('alert-status').textContent = page.message || '';
+    const list = $('alert-list');
+    if (!list) return;
+    list.replaceChildren();
+    (page.items || []).forEach(item => {
+      const card = node('article', 'match-card');
+      const heading = node('h3');
+      heading.append(alertLink(item.lostHidden, item.lostId, item.lostTitle, '丢失公告'));
+      heading.append(document.createTextNode(' · '));
+      heading.append(alertLink(item.foundHidden, item.foundId, item.foundTitle, '拾获公告'));
+      card.append(heading);
+      const lostStatus = item.lostHidden ? '不可用' : alertStatus(item.lostStatus);
+      const foundStatus = item.foundHidden ? '不可用' : alertStatus(item.foundStatus);
+      card.append(node('p', 'muted', `${alertConfidence(item.confidenceLabel)} · 丢失：${lostStatus} · 拾获：${foundStatus}`));
+      card.append(node('p', '', item.reason || ''));
+      if (!item.read) {
+        const button = node('button', 'button secondary', '标为已读');
+        button.type = 'button';
+        button.addEventListener('click', () => { void markAlertRead(item.id); });
+        card.append(button);
+      }
+      list.append(card);
+    });
+  }
+
+  function alertStatus(status) {
+    return {
+      OPEN: '开放', CLAIM_UNDER_REVIEW: '认领复核中', AWAITING_COLLECTION: '待领取',
+      RETURNED: '已归还', CLOSED: '已归档'
+    }[status] || status || '';
+  }
+
+  function alertConfidence(label) {
+    return { High: '高', Medium: '中', Low: '低' }[label] || '高';
+  }
+
+  function alertLink(hidden, id, title, fallback) {
+    if (hidden || !id) return node('span', '', '公告不可用');
+    const link = node('a', '', title || fallback);
+    link.href = `#/notices/${encodeURIComponent(id)}`;
+    return link;
+  }
+
+  async function saveAlertPreference(event) {
+    event.preventDefault();
+    const alertsMode = $('alert-mode-alerts');
+    const manualMode = $('alert-mode-manual');
+    const selected = alertsMode && alertsMode.checked ? alertsMode.value : manualMode && manualMode.checked ? manualMode.value : '';
+    const error = $('alert-save-error');
+    if (error) error.textContent = '';
+    if (!selected) {
+      if (error) error.textContent = '请选择提醒方式。';
+      return;
+    }
+    const button = $('alert-save');
+    if (button) button.disabled = true;
+    try {
+      await api('/api/alert-preference', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: selected, version: Number($('alert-version').value) })
+      });
+      await loadAlerts();
+    } catch (caught) {
+      if (await handleAuthError(caught)) return;
+      if (error) error.textContent = caught.message;
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  async function markAlertRead(id) {
+    try {
+      await api(`/api/alerts/${encodeURIComponent(id)}/read`, { method: 'POST' });
+      await loadAlerts();
+    } catch (error) {
+      if (!await handleAuthError(error) && $('alert-status')) $('alert-status').textContent = error.message;
+    }
+  }
+
   async function route() {
     if (!location.hash) history.replaceState(null, '', '#/available');
     const currentHash = location.hash || '#/available';
@@ -262,16 +384,20 @@
       await ensureOptions();
       if (token !== state.routeToken) return;
       const path = currentHash.slice(1).split('?')[0] || '/available';
+      if (path === '/alerts') { setView('alerts'); await loadAlerts(token); return; }
       if (path === '/new') { openEditor(null); return; }
       const match = path.match(/^\/notices\/([^/]+)$/);
       if (match) {
         setView('detail'); state.detail = null;
         $('detail-heading').textContent = 'Loading notice…';
-        ['detail-badges', 'detail-facts', 'detail-description', 'detail-photos', 'detail-id', 'detail-version', 'history-list', 'history-count'].forEach(id => $(id).replaceChildren());
-        ['edit-notice', 'show-close', 'close-panel', 'detail-lock'].forEach(id => { $(id).hidden = true; });
+        ['detail-badges', 'detail-facts', 'detail-description', 'detail-photos', 'detail-id', 'detail-version', 'history-list', 'history-count', 'match-list'].forEach(id => $(id).replaceChildren());
+        ['edit-notice', 'show-close', 'close-panel', 'detail-lock', 'match-retry'].forEach(id => { $(id).hidden = true; });
+        $('match-status').textContent = '';
         await loadDetail(decodeURIComponent(match[1]), token); return;
       }
-      state.scope = path === '/available' ? 'available' : 'mine'; state.page = 0;
+      const nextScope = path === '/available' ? 'available' : 'mine';
+      if (nextScope !== state.scope || state.view !== 'detail') state.page = 0;
+      state.scope = nextScope;
       await loadList(token);
     } catch (error) {
       if (token !== state.routeToken) return;
@@ -280,24 +406,154 @@
     }
   }
 
+  function emptyFilters() {
+    return { keyword: '', type: '', category: '', area: '', from: '', to: '', openOnly: false, size: 20 };
+  }
+
+  function hasActiveFilters(filters = state.filters) {
+    return Boolean(filters.keyword || filters.type || filters.category || filters.area || filters.from || filters.to || filters.openOnly);
+  }
+
+  function readFilterForm() {
+    return {
+      keyword: $('filter-keyword').value.trim(),
+      type: $('filter-type').value,
+      category: $('filter-category').value,
+      area: $('filter-area').value,
+      from: $('filter-from').value,
+      to: $('filter-to').value,
+      openOnly: $('filter-status').value === 'open',
+      size: Number($('filter-size').value) === 50 ? 50 : 20
+    };
+  }
+
+  function writeFilterForm(filters) {
+    $('filter-keyword').value = filters.keyword || '';
+    $('filter-type').value = filters.type || '';
+    $('filter-category').value = filters.category || '';
+    $('filter-area').value = filters.area || '';
+    $('filter-from').value = filters.from || '';
+    $('filter-to').value = filters.to || '';
+    $('filter-status').value = filters.openOnly ? 'open' : '';
+    $('filter-size').value = filters.size === 50 ? '50' : '20';
+  }
+
+  function clearFilterErrors() {
+    ['keyword', 'type', 'category', 'area', 'from', 'to', 'openOnly', 'size', 'page'].forEach(name => {
+      const el = $(`error-filter-${name}`);
+      if (el) el.textContent = '';
+      const input = $(name === 'openOnly' ? 'filter-status' : `filter-${name}`);
+      if (input) input.removeAttribute('aria-invalid');
+    });
+    $('filter-error').textContent = '';
+  }
+
+  function showFilterErrors(fields = {}) {
+    clearFilterErrors();
+    Object.entries(fields).forEach(([name, text]) => {
+      const el = $(`error-filter-${name}`);
+      const input = $(name === 'openOnly' ? 'filter-status' : `filter-${name}`);
+      if (el) el.textContent = text;
+      else $('filter-error').textContent = text;
+      if (input) input.setAttribute('aria-invalid', 'true');
+    });
+    if (!$('filter-error').textContent) $('filter-error').textContent = 'Please check the highlighted filters.';
+  }
+
+  function validateFilterForm(filters) {
+    const fields = {};
+    if (codePoints(filters.keyword) > 80) fields.keyword = 'Use at most 80 characters.';
+    if (filters.from && filters.to && filters.from > filters.to) fields.to = 'The end date must be on or after the start date.';
+    if (!Object.keys(fields).length) { clearFilterErrors(); return true; }
+    showFilterErrors(fields);
+    return false;
+  }
+
+  function noticeQuery() {
+    const params = new URLSearchParams({ scope: state.scope, page: String(state.page) });
+    if (state.scope !== 'available') return `/api/notices?${params.toString()}`;
+    const filters = state.filters;
+    if (filters.keyword) params.set('keyword', filters.keyword);
+    if (filters.type) params.set('type', filters.type);
+    if (filters.category) params.set('category', filters.category);
+    if (filters.area) params.set('area', filters.area);
+    if (filters.from) params.set('from', filters.from);
+    if (filters.to) params.set('to', filters.to);
+    if (filters.openOnly) params.set('openOnly', 'true');
+    params.set('size', String(filters.size || 20));
+    return `/api/notices?${params.toString()}`;
+  }
+
+  function renderFilterSummary(total) {
+    const box = $('active-filters');
+    if (state.scope !== 'available') { box.hidden = true; box.replaceChildren(); return; }
+    box.hidden = false; box.replaceChildren();
+    const filters = state.filters;
+    if (Number.isFinite(total)) box.append(node('p', 'filter-note', `${total} notice${total === 1 ? '' : 's'}`));
+    const chips = [];
+    if (filters.keyword) chips.push(`Keyword “${filters.keyword}”`);
+    if (filters.type) chips.push(filters.type === 'FOUND' ? 'Found' : 'Lost');
+    if (filters.category) chips.push(optionLabel('categories', filters.category));
+    if (filters.from || filters.to) chips.push(`${filters.from || 'any start'} – ${filters.to || 'any end'}`);
+    if (filters.area) chips.push(optionLabel('areas', filters.area));
+    if (filters.openOnly) chips.push('Open only');
+    if (filters.size === 50) chips.push('50 per page');
+    if (!chips.length) box.append(node('span', 'filter-note', 'No filters applied. Showing Open and Claim under review.'));
+    chips.forEach(text => box.append(node('span', 'filter-chip', text)));
+  }
+
+  function applyFilters(event) {
+    if (event) event.preventDefault();
+    if (state.scope !== 'available') return;
+    const next = readFilterForm();
+    if (!validateFilterForm(next)) return;
+    state.filters = next; state.page = 0;
+    void loadList();
+  }
+
+  function browseAll() {
+    state.filters = emptyFilters(); state.page = 0;
+    writeFilterForm(state.filters); clearFilterErrors();
+    void loadList();
+  }
+
   async function loadList(token = ++state.routeToken) {
     setView('list');
-    $('list-heading').textContent = state.scope === 'mine' ? 'My notices' : 'Available notices';
-    $('list-description').textContent = state.scope === 'mine' ? 'Your current notices and archived records, in one place.' : 'Current lost and found notices visible after sign-in. Closed means archived, not returned.';
+    const available = state.scope === 'available';
+    $('list-heading').textContent = available ? 'Available notices' : 'My notices';
+    $('list-description').textContent = available
+      ? 'Browse current notices with no filter, or narrow them below. Closed means archived, not returned.'
+      : 'Your current notices and archived records, in one place.';
+    $('filter-form').hidden = !available;
+    if (available) renderFilterSummary();
+    $('filter-apply').disabled = true; $('browse-all').disabled = true;
     $('notice-list').setAttribute('aria-busy', 'true');
     $('notice-list').replaceChildren(node('div', 'loading-state', 'Loading notices…'));
     $('pagination').hidden = true;
     try {
-      const result = await api(`/api/notices?scope=${state.scope}&page=${state.page}`);
+      const result = await api(noticeQuery());
       if (token !== state.routeToken || !state.session?.authenticated) return;
-      state.list = result;
+      state.list = result; clearFilterErrors();
       const list = $('notice-list'); list.replaceChildren();
       const items = result.items || [];
+      const total = Number(result.totalElements);
+      if (available) renderFilterSummary(total);
       if (!items.length) {
         const empty = node('div', 'empty-state');
-        empty.append(node('h2', '', state.scope === 'mine' ? 'Start with your first notice' : 'No available notices yet'));
-        empty.append(node('p', 'muted', state.scope === 'mine' ? 'Lost something or found an item? Add the details and keep the link current.' : 'New notices will appear here when they are available.'));
-        const link = node('a', 'button primary', 'Create a notice'); link.href = '#/new'; link.dataset.route = '/new'; empty.append(link); list.append(empty);
+        if (available && hasActiveFilters()) {
+          empty.append(node('h2', '', 'No notices match these filters'));
+          empty.append(node('p', 'muted', 'This search is valid. Adjust the keyword, type, category, dates, area or status, or browse all available notices.'));
+          const adjust = node('button', 'button secondary', 'Adjust filters'); adjust.type = 'button';
+          adjust.addEventListener('click', () => $('filter-keyword').focus());
+          const browse = node('button', 'button primary', 'Browse all available'); browse.type = 'button';
+          browse.addEventListener('click', browseAll);
+          const actions = node('div', 'form-actions'); actions.append(adjust, browse); empty.append(actions);
+        } else {
+          empty.append(node('h2', '', state.scope === 'mine' ? 'Start with your first notice' : 'No available notices yet'));
+          empty.append(node('p', 'muted', state.scope === 'mine' ? 'Lost something or found an item? Add the details and keep the link current.' : 'New notices will appear here when they are available.'));
+          const link = node('a', 'button primary', 'Create a notice'); link.href = '#/new'; link.dataset.route = '/new'; empty.append(link);
+        }
+        list.append(empty);
       }
       items.forEach(notice => {
         const card = node('article', 'notice-card'); card.append(badges(notice));
@@ -312,14 +568,35 @@
         meta.append(node('span', '', `Updated ${formatDate(notice.updatedAt || notice.createdAt)}`), node('span', '', 'View details →')); card.append(meta); list.append(card);
       });
       const page = Number(result.page ?? state.page);
+      const size = Number(result.size ?? (available ? state.filters.size : 20));
       $('pagination').hidden = page === 0 && !result.hasNext;
       $('previous-page').disabled = page === 0; $('next-page').disabled = !result.hasNext;
-      $('page-label').textContent = `Page ${page + 1}${Number.isFinite(Number(result.totalElements)) ? ` · ${result.totalElements} notices` : ''}`;
+      const noun = total === 1 ? 'notice' : 'notices';
+      $('page-label').textContent = `Page ${page + 1} · ${size} per page${Number.isFinite(total) ? ` · ${total} ${noun}` : ''}`;
     } catch (error) {
       if (token !== state.routeToken) return;
-      $('notice-list').replaceChildren(node('div', 'empty-state', 'Notices could not be loaded. Use Refresh to try again.'));
+      if (error instanceof ApiError && error.status === 422) {
+        showFilterErrors(error.fields);
+        const empty = node('div', 'empty-state');
+        empty.append(node('h2', '', 'Check these filters'));
+        empty.append(node('p', 'muted', 'The selected filters are still here. Correct the highlighted fields and apply them again.'));
+        $('notice-list').replaceChildren(empty);
+        return;
+      }
+      const empty = node('div', 'empty-state');
+      empty.append(node('h2', '', 'Notices could not be loaded'));
+      empty.append(node('p', 'muted', 'Your filters are unchanged. Retry to look up the current notices.'));
+      const retry = node('button', 'button primary', 'Retry'); retry.type = 'button';
+      retry.addEventListener('click', () => { void loadList(); });
+      empty.append(retry);
+      $('notice-list').replaceChildren(empty);
       if (!await handleAuthError(error)) message(error.message, true, true);
-    } finally { if (token === state.routeToken) $('notice-list').removeAttribute('aria-busy'); }
+    } finally {
+      if (token === state.routeToken) {
+        $('filter-apply').disabled = false; $('browse-all').disabled = false;
+        $('notice-list').removeAttribute('aria-busy');
+      }
+    }
   }
 
   async function loadDetail(id, token = ++state.routeToken) {
@@ -374,6 +651,58 @@
       $('history-list').append(item);
     });
     if (!entries.length) $('history-list').append(node('li', 'muted', 'No history entries are available.'));
+    const suggestionToken = state.routeToken;
+    setTimeout(() => { void loadSuggestions(notice.id, suggestionToken); }, 0);
+  }
+
+  async function loadSuggestions(id, token) {
+    const list = $('match-list');
+    const status = $('match-status');
+    if (!list || !status) return;
+    list.replaceChildren();
+    status.textContent = 'Checking current suggestions…';
+    $('match-retry').hidden = true;
+    try {
+      const page = await api(`/api/notices/${encodeURIComponent(id)}/suggestions`);
+      if (token !== state.routeToken || state.detail?.id !== id) return;
+      status.textContent = page.message || '';
+      if (!page.items?.length) return;
+      page.items.forEach(item => {
+        const card = node('article', 'match-card');
+        const heading = node('h3');
+        const link = node('a', '', item.title);
+        link.href = `#/notices/${encodeURIComponent(item.noticeId)}`;
+        link.dataset.route = `/notices/${encodeURIComponent(item.noticeId)}`;
+        heading.append(link);
+        const facts = `${item.type === 'FOUND' ? 'Found item' : 'Lost item'} · ${optionLabel('categories', item.category)} · ${optionLabel('areas', item.area)} · ${formatDate(item.occurrenceDate)}${item.approximate ? ' · approximate' : ''} · ${statusLabels[item.status] || item.status}`;
+        const reasons = node('ul', 'match-reasons');
+        (item.reasons || []).forEach(reason => reasons.append(node('li', '', reason)));
+        const ignore = node('button', 'button secondary', 'Ignore this pair');
+        ignore.type = 'button';
+        ignore.addEventListener('click', () => { void ignorePair(id, item.noticeId, ignore); });
+        card.append(heading, node('p', 'muted', facts), node('p', '', `Rank ${item.rank} · ${item.confidenceLabel} confidence (${item.confidence})`), reasons, ignore);
+        list.append(card);
+      });
+    } catch (error) {
+      if (token !== state.routeToken || state.detail?.id !== id) return;
+      status.textContent = 'Suggestions are temporarily unavailable. This notice and manual search are unchanged. You can retry.';
+      $('match-retry').hidden = false;
+      if (error?.status === 401) await handleAuthError(error);
+    }
+  }
+
+  async function ignorePair(sourceId, otherId, button) {
+    button.disabled = true;
+    try {
+      await api(`/api/notices/${encodeURIComponent(sourceId)}/suggestions/${encodeURIComponent(otherId)}/ignore`, { method: 'POST' });
+      await loadSuggestions(sourceId, state.routeToken);
+    } catch (error) {
+      button.disabled = false;
+      if (!await handleAuthError(error)) {
+        $('match-status').textContent = 'The pair could not be ignored. The suggestion is unchanged. You can retry.';
+        $('match-retry').hidden = false;
+      }
+    }
   }
 
   function actionLabel(action) {
@@ -689,6 +1018,8 @@
     }
   });
   $('refresh-list').addEventListener('click', () => { void loadList(); });
+  $('filter-form').addEventListener('submit', applyFilters);
+  $('browse-all').addEventListener('click', browseAll);
   $('previous-page').addEventListener('click', () => { if (state.page > 0) { state.page -= 1; void loadList(); } });
   $('next-page').addEventListener('click', () => { if (state.list?.hasNext) { state.page += 1; void loadList(); } });
   $('detail-back').addEventListener('click', () => navigate(`/${state.scope}`));
@@ -717,6 +1048,9 @@
   });
   $('review-latest').addEventListener('click', () => { void reviewLatest(); });
   $('use-latest-version').addEventListener('click', useLatestVersion);
+  $('match-retry').addEventListener('click', () => { if (state.detail?.id) void loadSuggestions(state.detail.id, state.routeToken); });
+  $('alert-form').addEventListener('submit', saveAlertPreference);
+  $('alert-retry').addEventListener('click', () => { void loadAlerts(); });
   $('copy-link').addEventListener('click', async () => {
     const url = `${location.origin}/app/#/notices/${encodeURIComponent(state.detail.id)}`;
     try { await navigator.clipboard.writeText(url); message('Stable notice link copied.'); }

@@ -69,7 +69,7 @@ class NoticeApiIntegrationTest {
     @BeforeEach
     void cleanNoticeData() {
         // Keep provisioned account fixtures; each scenario owns all notice data.
-        for (String table : List.of("active_reservations", "claim_guards", "notice_photos",
+        for (String table : List.of("alert_event_deliveries", "match_alerts", "ignored_pairs", "match_candidates", "active_reservations", "claim_guards", "notice_photos",
                 "notice_revisions", "notice_events", "notice_audit", "idempotency_records", "notices")) {
             jdbc.update("DELETE FROM " + table);
         }

@@ -62,6 +62,60 @@ CREATE TABLE IF NOT EXISTS accounts (
  created_at VARCHAR(40) NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS uq_accounts_username_key ON accounts(username_key);
+-- T12 suggestions. A row is a ranked comparison of public fields, never ownership proof.
+-- config_version t12-2026-10-25 is the frozen category / word / area / date rule.
+CREATE TABLE IF NOT EXISTS match_candidates (
+ lost_id VARCHAR(36) NOT NULL REFERENCES notices(id),
+ found_id VARCHAR(36) NOT NULL REFERENCES notices(id),
+ lost_material_version BIGINT NOT NULL,
+ found_material_version BIGINT NOT NULL,
+ category_score INT NOT NULL,
+ text_score INT NOT NULL,
+ area_score INT NOT NULL,
+ date_score INT NOT NULL,
+ confidence INT NOT NULL,
+ reasons_json TEXT NOT NULL,
+ config_version VARCHAR(40) NOT NULL,
+ evaluated_at VARCHAR(40) NOT NULL,
+ PRIMARY KEY (lost_id, found_id, lost_material_version, found_material_version)
+);
+-- Dismissal stays for this user even if either notice is edited or returns to Open.
+CREATE TABLE IF NOT EXISTS ignored_pairs (
+ user_id VARCHAR(80) NOT NULL,
+ canonical_pair_id VARCHAR(80) NOT NULL,
+ dismissed_at VARCHAR(40) NOT NULL,
+ PRIMARY KEY (user_id, canonical_pair_id)
+);
+-- T13 in-site alerts. New-match alerts is the proposed default and is still awaiting confirmation.
+-- Dedup is recipient + lost + found + both material versions. Photo or timestamp changes do not use a new key.
+CREATE TABLE IF NOT EXISTS match_preferences (
+ user_id VARCHAR(80) PRIMARY KEY,
+ mode VARCHAR(30) NOT NULL CHECK (mode IN ('NEW_MATCH_ALERTS','MANUAL_CHECKING')),
+ latest_enabled_at VARCHAR(40) NOT NULL,
+ latest_enable_order BIGINT NOT NULL,
+ version BIGINT NOT NULL,
+ proposed_default BOOLEAN NOT NULL
+);
+CREATE TABLE IF NOT EXISTS match_alerts (
+ id VARCHAR(36) PRIMARY KEY,
+ recipient_id VARCHAR(80) NOT NULL,
+ lost_id VARCHAR(36) NOT NULL REFERENCES notices(id),
+ found_id VARCHAR(36) NOT NULL REFERENCES notices(id),
+ lost_material_version BIGINT NOT NULL,
+ found_material_version BIGINT NOT NULL,
+ reason VARCHAR(1000) NOT NULL,
+ confidence INT NOT NULL,
+ trigger_order BIGINT NOT NULL,
+ created_at VARCHAR(40) NOT NULL,
+ read_at VARCHAR(40),
+ config_version VARCHAR(40) NOT NULL,
+ UNIQUE (recipient_id, lost_id, found_id, lost_material_version, found_material_version)
+);
+CREATE TABLE IF NOT EXISTS alert_event_deliveries (
+ event_id VARCHAR(36) PRIMARY KEY REFERENCES notice_events(id),
+ state VARCHAR(20) NOT NULL,
+ attempted_at VARCHAR(40) NOT NULL
+);
 CREATE TABLE IF NOT EXISTS account_audit (
  id VARCHAR(36) PRIMARY KEY,
  actor_id VARCHAR(80) NOT NULL,

@@ -12,8 +12,8 @@ import static edu.must.campuslostfound.NoticeModels.*;
 @RestController
 @RequestMapping("/api")
 class NoticeController {
-    private final NoticeService service;private final PhotoProcessor photos;private final AccountService accounts;
-    NoticeController(NoticeService service,PhotoProcessor photos,AccountService accounts) {this.service=service;this.photos=photos;this.accounts=accounts;}
+    private final NoticeService service;private final PhotoProcessor photos;private final AccountService accounts;private final MatchService matches;
+    NoticeController(NoticeService service,PhotoProcessor photos,AccountService accounts,MatchService matches) {this.service=service;this.photos=photos;this.accounts=accounts;this.matches=matches;}
     private Actor actor(Principal user) {
         if(user==null) throw new ApiProblem(HttpStatus.UNAUTHORIZED,"SIGN_IN_REQUIRED","Please sign in to continue.");
         return accounts.actor(user.getName());
@@ -23,8 +23,18 @@ class NoticeController {
                 "areas",NoticeService.AREAS.stream().map(s->Map.of("value",s,"label",label(s))).toList(),"today",service.today().toString());
     }
     private String label(String value) {return value.charAt(0)+value.substring(1).toLowerCase().replace('_',' ');}
-    @GetMapping("/notices") Page list(@RequestParam(defaultValue="available") String scope,@RequestParam(defaultValue="0") int page,Principal user) {return service.list(scope,page,actor(user));}
+    @GetMapping("/notices") Page list(@RequestParam(defaultValue="available") String scope,@RequestParam(defaultValue="0") int page,
+                                     @RequestParam(defaultValue="20") int size,@RequestParam(defaultValue="") String keyword,
+                                     @RequestParam(defaultValue="") String type,@RequestParam(defaultValue="") String category,
+                                     @RequestParam(defaultValue="") String area,@RequestParam(defaultValue="") String from,
+                                     @RequestParam(defaultValue="") String to,@RequestParam(defaultValue="false") String openOnly,Principal user) {
+        return service.list(scope,page,size,keyword,type,category,area,from,to,openOnly,actor(user));
+    }
     @GetMapping("/notices/{id}") View get(@PathVariable String id,Principal user) {return service.get(id,actor(user));}
+    @GetMapping("/notices/{id}/suggestions") MatchModels.SuggestionPage suggestions(@PathVariable String id,Principal user) {return matches.suggestions(id,actor(user));}
+    @PostMapping("/notices/{id}/suggestions/{otherId}/ignore") ResponseEntity<Void> ignore(@PathVariable String id,@PathVariable String otherId,Principal user) {
+        matches.ignore(id,otherId,actor(user)); return ResponseEntity.noContent().build();
+    }
     @PostMapping(value="/notices",consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<View> create(@RequestPart("notice") Write notice,@RequestPart(value="photos",required=false) List<MultipartFile> files,
                                 @RequestHeader(value="Idempotency-Key",required=false) String key,Principal user) {

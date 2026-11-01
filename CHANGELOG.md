@@ -2,6 +2,37 @@
 
 Changes to the public project information and delivery plan. Dates use the project's Asia/Macau calendar. Planning updates do not imply implemented features or passed acceptance tests.
 
+## 2026-11-01 — Feishu progress and source reconciliation
+
+- Recorded the project owner's confirmation that W2 and W3 are complete: W1 5/5, W2 7/7, W3 4/4, W4 2/4, W5 0/10 and W6 0/5; total **18/35 (51.4%)**. The confirmation date does not replace an unknown actual completion date.
+- Updated the 35-task snapshot, project plan and information website. Preserved the existing weekly calendar and kept delivery completion separate from integration and acceptance results.
+- Integrated the cumulative T11 search, T12 ranked-match and T13 alert source attachments. Preserved T10 recovery fixes; reran **59 backend tests and 12 frontend VM scenarios**, all passing, and built the executable JAR.
+- Preserved T15–T18 source deliveries separately under `submissions/t15-t18/`, including provenance and the gaps T19 must address. The running main application does not claim the archived claim/return/moderation code as integrated.
+- Prepared the same content for the course and personal repositories as explicitly requested for this sync. The course repository remains the default destination for future development. Original repository histories are retained.
+- Kept historical implementation reports unchanged. No deployment, customer policy approval or unexecuted acceptance result is implied.
+
+## 2026-10-25 — T13 new-match alerts
+
+- Added an in-site alert preference for REQ-1.6. New-match alerts is the proposed default and remains unconfirmed. Manual checking records no new alert.
+- Existing alerts stay readable in manual mode and after a notice is closed. Search, suggestions and the notice itself stay available. There is no private case module in this task.
+- Turning alerts back on reads the current commit order and does not replay earlier events. A delayed retry still uses the event's stored trigger order.
+- The same user, lost notice, found notice and both material versions produce one alert. A photo-only or timestamp-only change does not use a new version. A qualifying alert is written after the notice commit and is readable within the 60-second budget.
+- Claim, return and moderation workflows remain unimplemented. The 16-of-20 unmatched-case AT-06 protocol is not claimed as passed.
+
+## 2026-10-25 — T12 ranked match suggestions
+
+- Added explained suggestions for REQ-1.5 and PERF-03. Only Open notices of the opposite type are compared, using public category, words, area and date. Ties break by notice ID. Missing or vague detail lowers confidence without changing that order.
+- A signed-in user can permanently ignore a pair. Later material edits and a later return to Open do not show that pair to the same user. Other users still see it.
+- Publish, material edit and a committed return to Open are visible on the next suggestion read, inside the 10-second budget. Matching failure keeps the notice and manual search, and does not invent a suggestion.
+- Claim, return and moderation workflows remain unimplemented. The 20-case AT-05 protocol is not claimed as passed.
+
+## 2026-10-25 — T11 manual search and combined filters
+
+- Added signed-in notice search for REQ-1.4 and CAP-03: optional keyword, Lost/Found type, category, occurrence-date range, campus area and Open-only status, with unfiltered browsing still available.
+- Available results stay limited to Open and Claim under review, and continue to exclude Awaiting collection, Returned, Closed, hidden notices and active reservations. Open only drops Claim under review.
+- Pages default to 20 notices, reject a size above 50, keep the selected filters, and order by publication time then notice ID. Opening a notice reads its current status.
+- Added filter integration coverage. The six-volunteer AT-04 timing protocol is not claimed as passed.
+
 ## 2026-10-25 — T10 flow review and T09 integration
 
 - Integrated the delivered T09 account/source archive on the T08 notice module; ordinary startup now requires registration.

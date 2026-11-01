@@ -13,6 +13,8 @@ import java.util.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import static edu.must.campuslostfound.NoticeModels.*;
 
 @Service
@@ -22,7 +24,8 @@ public class NoticeService {
     private final JdbcTemplate db;
     private final ObjectMapper json;
     private final Clock clock;
-    NoticeService(JdbcTemplate db,ObjectMapper json,Clock clock) {this.db=db;this.json=json;this.clock=clock;}
+    private final AlertService alerts;
+    NoticeService(JdbcTemplate db,ObjectMapper json,Clock clock,AlertService alerts) {this.db=db;this.json=json;this.clock=clock;this.alerts=alerts;}
     LocalDate today() {return LocalDate.now(clock.withZone(ZoneId.of("Asia/Macau")));}
     private String now() {return clock.instant().toString();}
     record Row(String id,String authorId,String authorName,String type,String title,String category,String date,boolean approximate,
@@ -71,15 +74,60 @@ public class NoticeService {
         return photos.getFirst();
     }
     @Transactional(readOnly=true)
-    public Page list(String scope,int page,Actor actor) {
-        if(!List.of("mine","available").contains(scope)||page<0||page>100000) throw ApiProblem.invalid(Map.of("page","Choose a valid list and page."));
-        String where=scope.equals("mine")?"n.hidden=FALSE AND n.author_id=?":
-                "n.hidden=FALSE AND n.status IN ('OPEN','CLAIM_UNDER_REVIEW') AND NOT EXISTS (SELECT 1 FROM active_reservations a WHERE a.notice_id=n.id)";
-        List<Object> args=new ArrayList<>();if(scope.equals("mine")) args.add(actor.id());
+    public Page list(String scope,int page,int size,String keyword,String type,String category,String area,String from,String to,String openOnly,Actor actor) {
+        Map<String,String> errors=new LinkedHashMap<>();
+        if(!List.of("mine","available").contains(scope)||page<0||page>100000) errors.put("page","Choose a valid list and page.");
+        if(size<1||size>50) errors.put("size","Choose 1–50 notices per page.");
+        String words=keyword==null?"":keyword.strip();
+        if(length(words)>80) errors.put("keyword","Use at most 80 characters.");
+        String typeValue=blank(type);
+        if(!typeValue.isEmpty()&&!List.of("LOST","FOUND").contains(typeValue)) errors.put("type","Choose Lost or Found.");
+        String categoryValue=blank(category);
+        if(!categoryValue.isEmpty()&&!CATEGORIES.contains(categoryValue)) errors.put("category","Choose a listed category.");
+        String areaValue=blank(area);
+        if(!areaValue.isEmpty()&&!AREAS.contains(areaValue)) errors.put("area","Choose a listed campus area.");
+        LocalDate start=calendarDate(from,"from",errors), end=calendarDate(to,"to",errors);
+        if(start!=null&&end!=null&&start.isAfter(end)) errors.put("to","The end date must be on or after the start date.");
+        boolean onlyOpen=openOnly(openOnly,errors);
+        if(!errors.isEmpty()) throw ApiProblem.invalid(errors);
+        StringBuilder where=new StringBuilder("n.hidden=FALSE");
+        List<Object> args=new ArrayList<>();
+        if(scope.equals("mine")) {
+            where.append(" AND n.author_id=?"); args.add(actor.id());
+            if(onlyOpen) where.append(" AND n.status='OPEN'");
+        } else {
+            where.append(onlyOpen?" AND n.status='OPEN'":" AND n.status IN ('OPEN','CLAIM_UNDER_REVIEW')");
+            where.append(" AND NOT EXISTS (SELECT 1 FROM active_reservations a WHERE a.notice_id=n.id)");
+        }
+        if(!typeValue.isEmpty()) {where.append(" AND n.type=?"); args.add(typeValue);}
+        if(!categoryValue.isEmpty()) {where.append(" AND n.category=?"); args.add(categoryValue);}
+        if(!areaValue.isEmpty()) {where.append(" AND n.area=?"); args.add(areaValue);}
+        if(start!=null) {where.append(" AND n.occurrence_date>=?"); args.add(start);}
+        if(end!=null) {where.append(" AND n.occurrence_date<=?"); args.add(end);}
+        for(String token:words.isEmpty()?List.<String>of():List.of(words.split("(?U)\\s+"))) {
+            String pattern=likePattern(token);
+            where.append(" AND (LOWER(n.title) LIKE ? ESCAPE '\\' OR LOWER(n.description) LIKE ? ESCAPE '\\')");
+            args.add(pattern); args.add(pattern);
+        }
         long total=db.queryForObject("SELECT COUNT(*) FROM notices n WHERE "+where,Long.class,args.toArray());
-        args.add(20);args.add(page*20);
-        var rows=db.query("SELECT n.* FROM notices n WHERE "+where+" ORDER BY n.created_at DESC,n.id LIMIT ? OFFSET ?",this::row,args.toArray());
-        return new Page(rows.stream().map(r->view(r,actor)).toList(),page,20,(page+1L)*20<total,total);
+        List<Object> pageArgs=new ArrayList<>(args); pageArgs.add(size); pageArgs.add((long)page*size);
+        var rows=db.query("SELECT n.* FROM notices n WHERE "+where+" ORDER BY n.created_at DESC, n.id LIMIT ? OFFSET ?",this::row,pageArgs.toArray());
+        return new Page(rows.stream().map(r->view(r,actor)).toList(),page,size,(page+1L)*size<total,total);
+    }
+    private String blank(String value) {return value==null?"":value.strip();}
+    private LocalDate calendarDate(String raw,String field,Map<String,String> errors) {
+        String value=blank(raw); if(value.isEmpty()) return null;
+        try {return LocalDate.parse(value);} catch(RuntimeException ex) {errors.put(field,"Enter a valid date."); return null;}
+    }
+    private boolean openOnly(String raw,Map<String,String> errors) {
+        String value=blank(raw);
+        if(value.isEmpty()||value.equalsIgnoreCase("false")) return false;
+        if(value.equalsIgnoreCase("true")) return true;
+        errors.put("openOnly","Choose available notices or Open only.");
+        return false;
+    }
+    private String likePattern(String token) {
+        return "%"+token.toLowerCase(Locale.ROOT).replace("\\","\\\\").replace("%","\\%").replace("_","\\_")+"%";
     }
     private Write validate(Write in) {
         Map<String,String> e=new LinkedHashMap<>();
@@ -189,6 +237,14 @@ public class NoticeService {
         db.update("INSERT INTO notice_events(id,notice_id,kind,version,material_version,trigger_order,created_at) VALUES(?,?,?,?,?,?,?)",UUID.randomUUID().toString(),row.id(),kind,row.version(),row.materialVersion(),order,row.updatedAt());
         db.update("INSERT INTO notice_audit(id,notice_id,actor_id,action,previous_state,new_state,occurred_at) VALUES(?,?,?,?,?,?,?)",UUID.randomUUID().toString(),row.id(),actor.id(),action,previous,row.status(),row.updatedAt());
         db.update("UPDATE commit_order SET counter=? WHERE id=1",order);
+        scheduleDelivery();
+    }
+    // Alert rows are written after this notice transaction commits, using the stored trigger order.
+    private void scheduleDelivery() {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) { alerts.deliverQuietly(); return; }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override public void afterCommit() { alerts.deliverQuietly(); }
+        });
     }
     private String encode(Object value) {try{return json.writeValueAsString(value);}catch(Exception e){throw new IllegalStateException("Cannot encode notice record",e);}}
     private List<String> strings(String value) {try{return json.readValue(value,new TypeReference<List<String>>(){});}catch(Exception e){throw new IllegalStateException("Cannot read history",e);}}

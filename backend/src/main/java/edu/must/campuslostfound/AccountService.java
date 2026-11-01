@@ -80,6 +80,9 @@ public class AccountService {
             throw ApiProblem.invalid(Map.of("username", "That username is already in use."));
         }
         audit(username, "REGISTER", username, "SUCCESS");
+        long current = db.queryForObject("SELECT counter FROM commit_order WHERE id=1 FOR UPDATE", Long.class);
+        db.update("INSERT INTO match_preferences(user_id,mode,latest_enabled_at,latest_enable_order,version,proposed_default) VALUES(?,?,?,?,1,TRUE)",
+                username, "NEW_MATCH_ALERTS", clock.instant().toString(), current);
         return new AccountView(username, displayName, "STUDENT", false);
     }
 

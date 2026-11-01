@@ -2,22 +2,32 @@
 
 Software Engineering course project by **D1-Team8 · 菜鸟驿站**, Macau University of Science and Technology.
 
-This repository contains the project information website, planning summaries, and a runnable local Java implementation of **T08: notice creation, editing and archiving**. The complete planned product also includes discovery, private claims and confirmed collection.
+This repository contains the project information website, delivery records and a runnable Java application for accounts, notice publishing, search, ranked suggestions and in-site alerts. The separately delivered claim/return/moderation source is preserved under `submissions/t15-t18/` for T19 integration.
 
-**Project website:** <https://escape0007.github.io/campus-lost-and-found-platform/>
+**Primary course repository:** [MUST-Workspace/D1-team8-project](https://github.com/MUST-Workspace/D1-team8-project)  
+**Personal mirror for this sync:** [escape0007/campus-lost-and-found-platform](https://github.com/escape0007/campus-lost-and-found-platform)  
+**Project information website:** <https://escape0007.github.io/campus-lost-and-found-platform/>
 
-## Current status — 25 October 2026
+## Current status — 1 November 2026
 
-- Requirements baseline: **Task2 User Requirements Specification (SRS), v1.2, 18 October 2026**.
-- **W1 documentation and planning: 5/5 tasks delivered and reviewed successfully (100%), completed 19 October 2026.** T01–T05 cover requirements analysis, first-release scope, shared notice/state design, ownership/reuse planning, and the project website/plan update.
-- **T08 is implemented locally** with a browser interface, authenticated author checks, persistent notices/photos, stable links, revision history, version conflicts and guarded archiving. **28 automated backend tests passed** with zero failures, errors or skips; an executable JAR was built.
-- The build targets **Java 21**; the recorded build/test runtime is **JDK 25.0.2**. H2 file storage is the verified local configuration. PostgreSQL and a Java 21 runtime still require separate verification.
-- **T09 is integrated from its delivered source archive**: account registration, persistent credentials, sign-in/out and authenticated browsing are available. Ordinary startup has no preset demo accounts.
-- **T10 review:** 44 backend and 12 frontend VM checks passed; 9 local browser checks passed. Recovery fixes cover timeouts, post-save detail rendering, sign-out interaction and stale registration CSRF tokens. See [the T10 review](docs/t10-review.md).
-- The full reporting-to-manual-search flow is **not released**: T11 search/filter implementation, six-person AT-02/04 evaluation and actual T15–T18 claim/return/moderation integration remain open.
-- W1's planned deadline remains **20 October 2026**; its documentation and planning work was completed on 19 October. The other five week boundaries remain unchanged.
+The Feishu task records and the project owner's confirmation record **18 of 35 tasks complete (51.4%)**. **W2 and W3 are complete**; that confirmation was received on 1 November, which is not an inferred historical completion date. These figures track task delivery, not end-to-end acceptance.
 
-See the [T08 delivery and local run guide](docs/t08-delivery.md), [six-week project plan](docs/project-plan.md) for responsibilities, outstanding customer decisions and future acceptance work, and the [change log](CHANGELOG.md) for the reasons behind this update.
+| Week | Completed tasks | Delivery status |
+| --- | ---: | --- |
+| W1 | 5/5 · 100% | Completed; documentation/planning finished 19 October |
+| W2 | 7/7 · 100% | Completed; T06–T11 and T35 |
+| W3 | 4/4 · 100% | Completed; T15–T18 source delivered, T19 integration pending |
+| W4 | 2/4 · 50% | T12/T13 completed early; T14/T19 not started |
+| W5 | 0/10 · 0% | Not started |
+| W6 | 0/5 · 0% | Not started |
+
+- **Runnable main application:** T08–T13 cover notices, account access, flow-recovery fixes, combined search, explained matching, alert preferences and deduplication. T11–T13 were integrated from the cumulative Feishu source attachments without removing the T10 fixes.
+- **Verification on 1 November:** `mvn verify` passed **59 backend tests**, with zero failures, errors or skips; **12 frontend VM regression scenarios** passed. An executable JAR was built. These checks do not constitute six-person usability, held-out matching evaluation or full workflow acceptance.
+- **W3 delivery:** [T15–T18 source archive](submissions/t15-t18/README.md) preserves the supplied code. It is a separate implementation based on an older snapshot. T19 must reconcile shared notice state, reservations, concurrent approval, dispute checks and assigned-reviewer access before integrating it into `backend/`.
+- **Requirements:** Task2 SRS v1.2, 18 October 2026, remains the baseline. T35 is marked complete in the tracker; this sync does not invent customer approval for policy choices without their decision evidence.
+- **Environment:** Java compiler release 21, verified with JDK 25.0.2, Maven 3.9.16, Spring Boot 3.5.16 and H2. A Java 21 runtime, PostgreSQL, network deployment and the full acceptance matrix still need separate verification.
+
+See the [complete 35-task snapshot, provenance and evidence](docs/progress-2026-11-01.md), [current project plan](docs/project-plan.md), and [change log](CHANGELOG.md). The [25 October T10 report](docs/t10-review.md) remains a historical record of that review's scope.
 
 ## First-release scope and owners
 
@@ -29,7 +39,7 @@ All F1–F5 outcomes remain required. The SRS maps them to 11 Must functional re
 | F2 — Discovery and alerts | Manual search and filters, explained ranked matches, alert preferences and deduplication | 刘昱彤 | 姚宇佳 |
 | F3–F5 — Claims, returns and moderation | Private evidence and conversation, claim decisions, single approval, two-party return confirmation and dispute review | 姚宇佳 | 庄薇琪 |
 
-Implementation is planned in this order: **accounts, reporting and manual search → claims, returns and moderation → matching and alerts**. All members contribute to design, implementation, testing, documentation and demonstration; the six-week effort remains approximately 144 person-hours.
+The planned dependency order is **accounts, reporting and manual search → claims, returns and moderation → full integration**. Matching and alert modules were delivered early; the complete return journey still depends on T19. All members contribute to design, implementation, testing, documentation and demonstration; the six-week effort remains approximately 144 person-hours.
 
 A match is a suggestion, not ownership proof. An item becomes **Returned** only after both handover parties confirm and any outstanding dispute is resolved. **Closed** means archived and does not certify physical return. Private cases are restricted to their participants and an assigned moderator under the current requirements baseline.
 
@@ -61,6 +71,8 @@ Open <http://127.0.0.1:8000/>. This serves the static project website; it does n
 
 ## Public documentation
 
+- [Current progress, all tasks and source provenance](docs/progress-2026-11-01.md)
+- [T15–T18 source delivery and integration findings](submissions/t15-t18/README.md)
 - [T08 implementation, verification and local run guide](docs/t08-delivery.md)
 - [Project plan and requirements summary](docs/project-plan.md)
 - [Change log](CHANGELOG.md)
