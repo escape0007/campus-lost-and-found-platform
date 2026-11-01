@@ -6,7 +6,14 @@ This repository contains the project information website, delivery records and a
 
 **Primary course repository:** [MUST-Workspace/D1-team8-project](https://github.com/MUST-Workspace/D1-team8-project)  
 **Personal mirror for this sync:** [escape0007/campus-lost-and-found-platform](https://github.com/escape0007/campus-lost-and-found-platform)  
-**Project information website:** <https://escape0007.github.io/campus-lost-and-found-platform/>
+**Project information website:** <https://escape0007.github.io/campus-lost-and-found-platform/>  
+**Interactive static demo:** [Six-step demo and downloads](https://escape0007.github.io/campus-lost-and-found-platform/demo.html)
+
+## Project showcase and static demo
+
+Open [the project showcase](index.html) or [the six-step workflow demo](demo.html). The demo explains the completed T19 flow with screenshots from the real local application using fictional test data. It does not sign users in, call the Java API or save notices/claims. GitHub Pages serves this static material only.
+
+The demo's [download and run section](demo.html#run) links to the primary course source archive, local build instructions, and the verified [v0.1.0-t19 runtime release](https://github.com/escape0007/campus-lost-and-found-platform/releases/tag/v0.1.0-t19) hosted in the personal mirror for this sync. Source, test evidence and deployment boundaries are documented in [the Pages guide](docs/github-pages-demo.md).
 
 ## Current status — 1 November 2026
 

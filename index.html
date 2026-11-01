@@ -6,13 +6,14 @@
   <meta name="description" content="D1-Team8's Campus Lost and Found Platform: requirements baseline, six-week delivery plan, team responsibilities and open decisions.">
   <title>Campus Lost and Found Platform · D1-Team8</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="demo.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">L/F</span><span>D1-Team8<span class="brand-sub">Software Engineering</span></span></a>
     <nav aria-label="Main navigation">
-      <a href="#scope">Scope</a><a href="#plan">Plan</a><a href="#team">Team</a><a href="#decisions">Open decisions</a><a href="#updates">Updates</a>
+      <a class="demo-nav-link" href="demo.html">应用演示 / Demo</a><a href="#scope">Scope</a><a href="#plan">Plan</a><a href="#team">Team</a><a href="#decisions">Open decisions</a><a href="#updates">Updates</a>
     </nav>
   </header>
   <main id="main">
@@ -21,7 +22,7 @@
         <p class="eyebrow">Campus Lost and Found Platform</p>
         <h1>A clearer route from<br>a notice to a return.</h1>
         <p class="lead">One searchable place for campus lost-and-found notices, with private claims and a clear handover process.</p>
-        <div class="hero-actions"><a class="button" href="#plan">View the six-week plan <span aria-hidden="true">↗</span></a><a class="text-link" href="https://github.com/MUST-Workspace/D1-team8-project">Course repository</a></div>
+        <div class="hero-actions"><a class="button" href="demo.html" lang="zh-Hans">应用演示 <span aria-hidden="true">↗</span></a><a class="text-link" href="demo.html#run" lang="zh-Hans">下载运行</a><a class="text-link" href="#plan">Six-week plan</a><a class="text-link" href="https://github.com/MUST-Workspace/D1-team8-project">Course repository</a></div><p class="hero-demo-note" lang="zh-Hans">GitHub Pages 静态流程演示 · 完整 Java 应用可下载到本机运行</p>
       </div>
       <aside class="baseline" aria-labelledby="baseline-title">
         <p class="eyebrow" id="baseline-title">Current baseline</p>
@@ -33,6 +34,10 @@
         <p class="updated">Website updated <time datetime="2026-11-01">1 Nov 2026</time></p>
       </aside>
     </div>
+    <section class="demo-launch" aria-labelledby="demo-launch-title" lang="zh-Hans">
+      <div><p class="eyebrow">T19 / Working application</p><h2 id="demo-launch-title">从公告，到双方确认归还。</h2><p>查看已完成流程的六步导览与真实应用截图：人工筛选、私密认领、审核、争议复核及双确认。</p><div class="hero-actions"><a class="button" href="demo.html">打开静态演示 <span aria-hidden="true">→</span></a><a class="text-link" href="demo.html#run">获取源码与本地运行说明</a></div><p class="small">此网站不接受公告、不登录、不保存认领数据。完整操作在本地 Java 应用中完成。</p></div>
+      <a class="launch-preview" href="demo.html#screenshots" aria-label="查看本地应用真实截图"><img src="assets/demo/return-completed.jpg" alt="本地应用使用虚构测试数据完成归还，双方已分别确认。" width="1265" height="2276"><span>真实应用截图 · 虚构测试数据 <span aria-hidden="true">↗</span></span></a>
+    </section>
     <section class="section overview" aria-labelledby="overview-title">
       <div><p class="eyebrow">01 / Project overview</p><h2 id="overview-title">Less searching.<br> A clearer next step.</h2></div>
       <div class="section-body"><p>Notices scattered across communication channels are easy to miss. The proposed platform brings consistent item records, search and claim progress into one browser-based service for students and assigned moderators.</p><p>This website presents delivery progress and the project plan. The local Java application now supports accounts, notices, search, calibrated suggestions, alerts, private claims, independent return confirmation and assigned moderation. Original source deliveries remain archived. This information site does not accept notices or run the backend.</p><div class="facts"><div><strong>11</strong><span>Must requirements<br>REQ-1.1–1.11</span></div><div><strong>5</strong><span>Product areas<br>F1–F5 retained</span></div><div><strong>6</strong><span>Delivery weeks<br>Approx. 144 person-hours</span></div></div></div>
