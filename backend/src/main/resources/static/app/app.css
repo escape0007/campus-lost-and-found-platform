@@ -11,3 +11,5 @@
 @media(max-width:600px){.match-panel .section-heading{align-items:flex-start;flex-direction:column}.match-card .button{width:100%}}
 #alerts-view .checkbox-label{display:flex;justify-content:flex-start;align-items:center;gap:8px;margin:8px 0;font-weight:450}#alerts-view .checkbox-label input{width:17px;height:17px;min-height:0;padding:0;border:0;flex:0 0 auto}#alerts-view legend{font-weight:650;margin-bottom:8px}#alert-list{margin-top:12px}
 @media(max-width:600px){.account-area{max-width:168px}}
+
+.workflow-content{display:flex;flex-direction:column;gap:16px}.workflow-content>.button{align-self:flex-start}.workflow-form{margin-top:20px}.workflow-form label{margin-top:14px}.workflow-form button{margin:12px 10px 0 0}.workflow-form .field-error{margin-bottom:12px}.private-text{white-space:pre-wrap;overflow-wrap:anywhere}.case-message{padding:14px 0;border-bottom:1px solid var(--line)}.case-message .muted{font-size:.8rem;margin-bottom:6px}.workflow-subtitle{margin-top:24px}#claims-panel .match-card{margin-top:12px}

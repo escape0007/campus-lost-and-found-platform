@@ -2,6 +2,15 @@
 
 Changes to the public project information and delivery plan. Dates use the project's Asia/Macau calendar. Planning updates do not imply implemented features or passed acceptance tests.
 
+## 2026-11-01 — T14 calibration and T19 claim/return integration
+
+- Integrated the reviewed T14 confidence/alert calibration, practice fixtures, tests and delivery guides. The `practice-2026-11-01` set remains separate from the reserved evaluation set; original stage reports are preserved.
+- Integrated T15–T18 into `backend/` while retaining T10 recovery and T11–T14 search/matching/alert behaviour. Reconciled shared notice state, linked reservations, competing approvals, two-party confirmation, disputes, terminal-case writes and assigned-reviewer access. Corrected the report-insertion SQL and retained the original W3 source archive.
+- Passed **78 backend tests and 18 frontend VM scenarios**. See [T19 integration evidence](docs/T19_联调与测试说明.txt) for the executed scope and remaining limits; formal W5 acceptance and deployment are still open.
+- Updated delivery to **20/35 (57.1%)**: W1 5/5, W2 7/7, W3 4/4, W4 4/4, W5 0/10, W6 0/5. W4 finished early on 1 November. T14 retains passed review; T19 is delivered and awaits peer review.
+- Corrected W2’s actual completion to **25 October, on time**, as specified by the owner. W3’s 1 November confirmation is not used as an inferred actual completion date. Planned week boundaries remain unchanged.
+- Prepared matching content for both repositories under the explicit request, preserving their separate histories. Future development continues to target the course repository.
+
 ## 2026-11-01 — Feishu progress and source reconciliation
 
 - Recorded the project owner's confirmation that W2 and W3 are complete: W1 5/5, W2 7/7, W3 4/4, W4 2/4, W5 0/10 and W6 0/5; total **18/35 (51.4%)**. The confirmation date does not replace an unknown actual completion date.

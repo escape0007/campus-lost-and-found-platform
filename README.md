@@ -2,7 +2,7 @@
 
 Software Engineering course project by **D1-Team8 · 菜鸟驿站**, Macau University of Science and Technology.
 
-This repository contains the project information website, delivery records and a runnable Java application for accounts, notice publishing, search, ranked suggestions and in-site alerts. The separately delivered claim/return/moderation source is preserved under `submissions/t15-t18/` for T19 integration.
+This repository contains the project information website, delivery records and a runnable Java application for accounts, notices, search, calibrated suggestions, alerts, private claims, return confirmation and assigned moderation. T14 calibration and T15–T18 workflows are integrated in `backend/`; original W3 deliveries remain preserved under `submissions/t15-t18/`.
 
 **Primary course repository:** [MUST-Workspace/D1-team8-project](https://github.com/MUST-Workspace/D1-team8-project)  
 **Personal mirror for this sync:** [escape0007/campus-lost-and-found-platform](https://github.com/escape0007/campus-lost-and-found-platform)  
@@ -10,20 +10,20 @@ This repository contains the project information website, delivery records and a
 
 ## Current status — 1 November 2026
 
-The Feishu task records and the project owner's confirmation record **18 of 35 tasks complete (51.4%)**. **W2 and W3 are complete**; that confirmation was received on 1 November, which is not an inferred historical completion date. These figures track task delivery, not end-to-end acceptance.
+The updated task record contains **20 of 35 tasks complete (57.1%)**. W1–W4 delivery is complete; W4 finished early on **1 November**. W2 actually finished on **25 October, on time**, as confirmed by the project owner. W3 completion was confirmed on 1 November; its actual completion date remains unrecorded. T14 retains its recorded passed review; T19 is **awaiting peer review**. These figures track task delivery, not final acceptance.
 
 | Week | Completed tasks | Delivery status |
 | --- | ---: | --- |
 | W1 | 5/5 · 100% | Completed; documentation/planning finished 19 October |
-| W2 | 7/7 · 100% | Completed; T06–T11 and T35 |
-| W3 | 4/4 · 100% | Completed; T15–T18 source delivered, T19 integration pending |
-| W4 | 2/4 · 50% | T12/T13 completed early; T14/T19 not started |
+| W2 | 7/7 · 100% | Completed on 25 October, on time; T06–T11 and T35 |
+| W3 | 4/4 · 100% | Completed; T15–T18 integrated under T19, originals preserved |
+| W4 | 4/4 · 100% | Completed early on 1 November; T12–T14 and T19 delivered |
 | W5 | 0/10 · 0% | Not started |
 | W6 | 0/5 · 0% | Not started |
 
-- **Runnable main application:** T08–T13 cover notices, account access, flow-recovery fixes, combined search, explained matching, alert preferences and deduplication. T11–T13 were integrated from the cumulative Feishu source attachments without removing the T10 fixes.
-- **Verification on 1 November:** `mvn verify` passed **59 backend tests**, with zero failures, errors or skips; **12 frontend VM regression scenarios** passed. An executable JAR was built. These checks do not constitute six-person usability, held-out matching evaluation or full workflow acceptance.
-- **W3 delivery:** [T15–T18 source archive](submissions/t15-t18/README.md) preserves the supplied code. It is a separate implementation based on an older snapshot. T19 must reconcile shared notice state, reservations, concurrent approval, dispute checks and assigned-reviewer access before integrating it into `backend/`.
+- **Runnable main application:** T08–T19 cover accounts and notices through the complete claim/return workflow. T19 integrates shared notice state, competing claims, linked reservations, independent confirmation, disputes and assigned-reviewer access while retaining T10 recovery and T11–T14 discovery behaviour.
+- **Verification on 1 November:** `mvn verify` passed **78 backend tests**, with zero failures, errors or skips; **18 frontend VM regression scenarios** passed. An executable JAR was built. These checks do not constitute six-person usability, held-out matching evaluation or full workflow acceptance.
+- **Source review:** T14 introduced meaningful confidence and alert calibration, so its code, practice fixtures and delivery guides were integrated. Its practice set is separate from the reserved evaluation set. [T15–T18 originals](submissions/t15-t18/README.md) remain unchanged; current integration fixes and verification are recorded in the [T19 report](docs/T19_联调与测试说明.txt).
 - **Requirements:** Task2 SRS v1.2, 18 October 2026, remains the baseline. T35 is marked complete in the tracker; this sync does not invent customer approval for policy choices without their decision evidence.
 - **Environment:** Java compiler release 21, verified with JDK 25.0.2, Maven 3.9.16, Spring Boot 3.5.16 and H2. A Java 21 runtime, PostgreSQL, network deployment and the full acceptance matrix still need separate verification.
 
@@ -39,7 +39,7 @@ All F1–F5 outcomes remain required. The SRS maps them to 11 Must functional re
 | F2 — Discovery and alerts | Manual search and filters, explained ranked matches, alert preferences and deduplication | 刘昱彤 | 姚宇佳 |
 | F3–F5 — Claims, returns and moderation | Private evidence and conversation, claim decisions, single approval, two-party return confirmation and dispute review | 姚宇佳 | 庄薇琪 |
 
-The planned dependency order is **accounts, reporting and manual search → claims, returns and moderation → full integration**. Matching and alert modules were delivered early; the complete return journey still depends on T19. All members contribute to design, implementation, testing, documentation and demonstration; the six-week effort remains approximately 144 person-hours.
+The planned dependency order is **accounts, reporting and manual search → claims, returns and moderation → full integration**. Matching and alert modules were delivered early; T19 now connects them with the private return journey. Formal evaluation remains scheduled for W5. All members contribute to design, implementation, testing, documentation and demonstration; the six-week effort remains approximately 144 person-hours.
 
 A match is a suggestion, not ownership proof. An item becomes **Returned** only after both handover parties confirm and any outstanding dispute is resolved. **Closed** means archived and does not certify physical return. Private cases are restricted to their participants and an assigned moderator under the current requirements baseline.
 
@@ -72,6 +72,8 @@ Open <http://127.0.0.1:8000/>. This serves the static project website; it does n
 ## Public documentation
 
 - [Current progress, all tasks and source provenance](docs/progress-2026-11-01.md)
+- [T19 integration, fixes and test evidence](docs/T19_联调与测试说明.txt)
+- [T14 practice calibration delivery](docs/T14_测试与交付说明.txt)
 - [T15–T18 source delivery and integration findings](submissions/t15-t18/README.md)
 - [T08 implementation, verification and local run guide](docs/t08-delivery.md)
 - [Project plan and requirements summary](docs/project-plan.md)

@@ -77,12 +77,12 @@ class T13AlertIntegrationTest {
                 "虚构公告：图书馆捡到蓝色保温瓶 Blue Flask，请只通过平台联系。"));
         JsonNode first = alerts(lostAuthor);
         assertThat(Duration.between(started, Instant.now())).isLessThan(Duration.ofSeconds(60));
-        assertThat(first.path("configVersion").asText()).isEqualTo("t13-2026-10-25");
+        assertThat(first.path("configVersion").asText()).isEqualTo("t14-2026-11-01");
         assertThat(first.path("disclaimer").asText()).contains("not prove ownership");
         assertThat(foundVersions(lostAuthor.username())).containsExactly(1L);
         assertThat(foundVersions(foundAuthor.username())).containsExactly(1L);
         JsonNode alert = item(first, 1);
-        assertThat(alert.path("confidence").asInt()).isGreaterThanOrEqualTo(70);
+        assertThat(alert.path("confidence").asInt()).isGreaterThanOrEqualTo(80);
         assertThat(alert.path("reason").asText()).contains("相同类别");
         assertThat(alert.path("description").isMissingNode()).isTrue();
         assertThat(Instant.parse(alert.path("createdAt").asText())).isAfterOrEqualTo(started.minusSeconds(5));

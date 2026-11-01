@@ -128,8 +128,8 @@
 
   function setView(view) {
     state.view = view;
-    ['list', 'detail', 'editor', 'alerts'].forEach(name => { $(`${name}-view`).hidden = name !== view; });
-    ['mine-nav', 'available-nav', 'alerts-nav'].forEach(id => $(id).removeAttribute('aria-current'));
+    ['list', 'detail', 'editor', 'alerts', 'workflow'].forEach(name => { $(`${name}-view`).hidden = name !== view; });
+    ['mine-nav', 'available-nav', 'alerts-nav', 'claims-nav', 'moderation-nav'].forEach(id => $(id).removeAttribute('aria-current'));
     if (view === 'list') $(`${state.scope}-nav`).setAttribute('aria-current', 'page');
     if (view === 'alerts') $('alerts-nav').setAttribute('aria-current', 'page');
   }
@@ -141,6 +141,7 @@
     $('session-status').hidden = !authenticated;
     $('account-name').textContent = authenticated ? state.session.displayName || state.session.username : '';
     $('account-name').title = authenticated ? `${state.session.username} · not campus identity verification` : '';
+    $('moderation-nav').hidden = !authenticated || state.session?.role !== 'MODERATOR';
     return authenticated;
   }
 
@@ -150,6 +151,7 @@
   }
 
   function markSignedOut() {
+    clearPrivateWorkflow();
     state.session = { ...(state.session || {}), authenticated: false, csrfToken: null };
     applySessionUi();
   }
@@ -211,7 +213,7 @@
   function editorDirty() { return state.view === 'editor' && Boolean(state.editor?.dirty); }
 
   function canLeaveEditor() {
-    return !editorDirty() || window.confirm('Leave this page and discard the unsaved draft?');
+    return !(editorDirty() || workflowDirty) || window.confirm('Leave this page and discard the unsaved draft?');
   }
 
   function navigate(path) {
@@ -283,7 +285,7 @@
     if (manualMode) manualMode.checked = preference.mode === 'MANUAL_CHECKING';
     if ($('alert-version')) $('alert-version').value = preference.version ?? '';
     if ($('alert-save')) $('alert-save').disabled = false;
-    if ($('alert-status')) $('alert-status').textContent = page.message || '';
+      if ($('alert-status')) $('alert-status').textContent = [page.configVersion ? `配置 ${page.configVersion}` : '', page.message || ''].filter(Boolean).join(' ');
     const list = $('alert-list');
     if (!list) return;
     list.replaceChildren();
@@ -297,6 +299,7 @@
       const lostStatus = item.lostHidden ? '不可用' : alertStatus(item.lostStatus);
       const foundStatus = item.foundHidden ? '不可用' : alertStatus(item.foundStatus);
       card.append(node('p', 'muted', `${alertConfidence(item.confidenceLabel)} · 丢失：${lostStatus} · 拾获：${foundStatus}`));
+      card.append(node('p', 'muted', `实质版本 丢失 v${item.lostMaterialVersion} · 拾获 v${item.foundMaterialVersion}`));
       card.append(node('p', '', item.reason || ''));
       if (!item.read) {
         const button = node('button', 'button secondary', '标为已读');
@@ -370,13 +373,14 @@
       history.replaceState(null, '', state.lastHash || '#/available');
       return;
     }
-    if (state.busy && ['editor', 'detail'].includes(state.view) && state.lastHash && currentHash !== state.lastHash) {
+    if (state.busy && ['editor', 'detail', 'workflow'].includes(state.view) && state.lastHash && currentHash !== state.lastHash) {
       history.replaceState(null, '', state.lastHash); message('Please wait for the current action to finish.'); return;
     }
     if (state.lastHash && currentHash !== state.lastHash && !canLeaveEditor()) {
       history.replaceState(null, '', state.lastHash); return;
     }
     if (currentHash !== state.lastHash && state.editor) state.editor.dirty = false;
+    if (state.lastHash !== currentHash) workflowDirty = false;
     state.lastHash = currentHash;
     if (!state.session?.authenticated) return;
     const token = ++state.routeToken;
@@ -384,13 +388,17 @@
       await ensureOptions();
       if (token !== state.routeToken) return;
       const path = currentHash.slice(1).split('?')[0] || '/available';
+      if (path === '/claims') { await loadClaims(token); return; }
+      if (path === '/moderation') { await loadModeration(token); return; }
+      const claimMatch = path.match(/^\/claims\/([^/]+)$/);
+      if (claimMatch) { await loadClaim(decodeURIComponent(claimMatch[1]), token); return; }
       if (path === '/alerts') { setView('alerts'); await loadAlerts(token); return; }
       if (path === '/new') { openEditor(null); return; }
       const match = path.match(/^\/notices\/([^/]+)$/);
       if (match) {
         setView('detail'); state.detail = null;
         $('detail-heading').textContent = 'Loading notice…';
-        ['detail-badges', 'detail-facts', 'detail-description', 'detail-photos', 'detail-id', 'detail-version', 'history-list', 'history-count', 'match-list'].forEach(id => $(id).replaceChildren());
+        ['detail-badges', 'detail-facts', 'detail-description', 'detail-photos', 'detail-id', 'detail-version', 'history-list', 'history-count', 'match-list', 'claims-panel'].forEach(id => $(id).replaceChildren());
         ['edit-notice', 'show-close', 'close-panel', 'detail-lock', 'match-retry'].forEach(id => { $(id).hidden = true; });
         $('match-status').textContent = '';
         await loadDetail(decodeURIComponent(match[1]), token); return;
@@ -652,7 +660,7 @@
     });
     if (!entries.length) $('history-list').append(node('li', 'muted', 'No history entries are available.'));
     const suggestionToken = state.routeToken;
-    setTimeout(() => { void loadSuggestions(notice.id, suggestionToken); }, 0);
+    setTimeout(() => { void loadSuggestions(notice.id, suggestionToken); void loadNoticeClaims(notice, suggestionToken); }, 0);
   }
 
   async function loadSuggestions(id, token) {
@@ -665,7 +673,7 @@
     try {
       const page = await api(`/api/notices/${encodeURIComponent(id)}/suggestions`);
       if (token !== state.routeToken || state.detail?.id !== id) return;
-      status.textContent = page.message || '';
+      status.textContent = [page.configVersion ? `配置 ${page.configVersion}` : '', page.message || ''].filter(Boolean).join(' ');
       if (!page.items?.length) return;
       page.items.forEach(item => {
         const card = node('article', 'match-card');
@@ -680,7 +688,7 @@
         const ignore = node('button', 'button secondary', 'Ignore this pair');
         ignore.type = 'button';
         ignore.addEventListener('click', () => { void ignorePair(id, item.noticeId, ignore); });
-        card.append(heading, node('p', 'muted', facts), node('p', '', `Rank ${item.rank} · ${item.confidenceLabel} confidence (${item.confidence})`), reasons, ignore);
+        card.append(heading, node('p', 'muted', facts), node('p', '', `Rank ${item.rank} · ${item.confidenceLabel} confidence (${item.confidence}) · material v${item.materialVersion}`), reasons, ignore);
         list.append(card);
       });
     } catch (error) {
@@ -939,6 +947,210 @@
     } catch (error) { if (!await handleAuthError(error)) $('close-error').textContent = error.message; }
   }
 
+  // Private workflow state stays in memory and is cleared on sign-out.
+  const workflowRequests = new Map();
+  let workflowDirty = false;
+  const claimLabels = {PENDING: '待审核', HELD: '候补暂停', APPROVED: '待领取', REJECTED: '已拒绝', WITHDRAWN: '已撤回', ITEM_RETURNED: '物品已归还'};
+  function workflowButton(text, run, style = 'secondary') {
+    const b = node('button', `button ${style}`, text); b.type = 'button';
+    b.addEventListener('click', () => { if (!state.busy) void run(); }); return b;
+  }
+  function workflowLink(text, path) {
+    const link = node('a', '', text); link.href = `#${path}`; link.dataset.route = path; return link;
+  }
+  function workflowInput(form, label, id, textarea = true) {
+    const l = node('label', '', label); l.htmlFor = id;
+    const input = node(textarea ? 'textarea' : 'input'); input.id = id;
+    if (textarea) input.rows = 3;
+    input.addEventListener('input', () => { workflowDirty = true; });
+    form.append(l, input); return input;
+  }
+  function workflowError(form) {
+    const error = node('p', 'field-error'); error.setAttribute('role', 'alert'); form.append(error); return error;
+  }
+  async function workflowWrite(path, payload, error, onSaved) {
+    if (state.busy) return;
+    const body = JSON.stringify(payload), fingerprint = `${state.session.username}:${path}:${body}`;
+    if (!workflowRequests.has(fingerprint)) workflowRequests.set(fingerprint, uuid());
+    state.busy = true; $('workspace').inert = true; $('workspace').setAttribute('aria-busy', 'true'); error.textContent = '';
+    let saved;
+    try {
+      saved = await api(path, {method: 'POST', headers: {'Content-Type': 'application/json'}, body, requestKey: workflowRequests.get(fingerprint)});
+    } catch (e) {
+      error.textContent = Object.values(e.fields || {}).join(' · ') || e.message;
+      if (e.status === 409) error.textContent += ' 请先刷新当前记录，再检查输入和操作条件。';
+      await handleAuthError(e); return;
+    } finally { state.busy = false; $('workspace').inert = false; $('workspace').removeAttribute('aria-busy'); }
+    workflowRequests.delete(fingerprint); workflowDirty = false;
+    message('操作已保存。');
+    // A read/render failure after a committed write must never invite resubmission.
+    try { await onSaved(saved); }
+    catch (_) { message('操作已保存，但页面刷新失败。请刷新记录查看结果。', true); }
+  }
+  function clearPrivateWorkflow() {
+    workflowRequests.clear(); workflowDirty = false;
+    $('claims-panel').replaceChildren(); $('workflow-content').replaceChildren();
+  }
+  function workflowHeader(title, refresh) {
+    setView('workflow'); $('workflow-heading').textContent = title;
+    $('claims-nav').setAttribute('aria-current', 'page');
+    const box = $('workflow-content'); box.replaceChildren();
+    box.append(workflowButton('刷新当前记录', () => { if (canLeaveEditor()) { workflowDirty = false; return refresh(); } }));
+    return box;
+  }
+  function claimCard(c) {
+    const card = node('article', 'match-card');
+    const h = node('h3'); h.append(workflowLink(c.foundTitle || '认领记录', `/claims/${encodeURIComponent(c.id)}`));
+    card.append(h, node('p', 'muted', `${claimLabels[c.status] || c.status}${c.disputed ? ' · 争议复核中' : ''} · ${formatDate(c.createdAt, true)}`));
+    return card;
+  }
+  async function loadClaims(token = ++state.routeToken) {
+    message('');
+    const box = workflowHeader('我的认领与审核', () => loadClaims());
+    box.append(node('p', 'muted', '这里只显示你参与或获指定复核的私密记录。不同认领人的证据和对话相互隔离。'));
+    const items = await api('/api/claims');
+    if (token !== state.routeToken || !state.session?.authenticated) return;
+    if (!items.length) box.append(node('p', 'empty-state', '还没有认领记录。打开一条拾获公告即可提交认领。'));
+    items.forEach(c => box.append(claimCard(c)));
+  }
+  async function loadClaim(id, token = ++state.routeToken) {
+    message('');
+    workflowHeader('正在读取私密记录…', () => loadClaim(id));
+    let c;
+    try { c = await api(`/api/claims/${encodeURIComponent(id)}`); }
+    catch (error) { if (token === state.routeToken) $('workflow-heading').textContent = '记录不可用'; throw error; }
+    if (token !== state.routeToken || !state.session?.authenticated) return;
+    renderClaim(c);
+  }
+  function showClaim(c) {
+    state.routeToken += 1;
+    const hash = `#/claims/${encodeURIComponent(c.id)}`;
+    history.pushState(null, '', hash); state.lastHash = hash; renderClaim(c);
+  }
+  function renderClaim(c) {
+    const box = workflowHeader(c.foundTitle || '私密认领记录', () => loadClaim(c.id));
+    box.append(workflowLink('查看拾获公告', `/notices/${encodeURIComponent(c.foundNoticeId)}`));
+    box.append(node('p', 'info-note', `${claimLabels[c.status] || c.status} · 版本 ${c.version} · 批准轮次 ${c.approvalRound}${c.disputed ? (c.completedAt ? ' · 归还事实保留，争议审核中' : ' · 争议处理中，暂停归还确认') : ''}${c.hidden ? ' · 公告已隐藏' : ''}`));
+    box.append(node('h2', '', '私密认领证据'), node('p', 'private-text', c.evidence));
+    if (c.lostNoticeId) box.append(node('p', 'muted', `关联丢失公告：${c.lostTitle || c.lostNoticeId}`));
+    if (c.decisionReason) box.append(node('p', 'private-text', `审核说明：${c.decisionReason}`));
+    if (c.disputeReason) box.append(node('p', 'private-text', `争议说明：${c.disputeReason}`));
+    const path = `/api/claims/${encodeURIComponent(c.id)}`;
+    if (c.canDecide) {
+      const form = node('form', 'panel workflow-form'); form.noValidate = true;
+      form.append(node('h2', '', '审核认领'));
+      const reason = workflowInput(form, '审核理由（必填）', 'claim-decision'); const error = workflowError(form);
+      const actions = node('div', 'form-actions');
+      ['approve', 'reject'].forEach(action => actions.append(workflowButton(action === 'approve' ? '批准此认领' : '拒绝此认领', () => {
+        if (!reason.value.trim()) { error.textContent = '请填写审核理由。'; return; }
+        if (!window.confirm(action === 'approve' ? '批准后将锁定此拾获公告及关联丢失公告，其他认领进入候补。确认批准？' : '确认拒绝此认领？')) return;
+        return workflowWrite(`${path}/${action}`, {reason: reason.value.trim(), version: c.version}, error, renderClaim);
+      }, action === 'approve' ? 'primary' : 'secondary')));
+      form.addEventListener('submit', e => e.preventDefault()); form.append(actions); box.append(form);
+    }
+    const actions = node('section', 'panel workflow-form'); const error = workflowError(actions);
+    if (c.canWithdraw) actions.append(workflowButton('撤回认领', () => {
+      if (window.confirm('确认撤回这条认领？原有证据和历史将保留。')) return workflowWrite(`${path}/withdraw`, {version: c.version, approvalRound: c.approvalRound}, error, renderClaim);
+    }));
+    if (c.status === 'APPROVED' || c.completedAt) {
+      actions.append(node('p', 'info-note', `拾获方：${c.finderConfirmed ? '已确认' : '未确认'} · 认领方：${c.claimantConfirmed ? '已确认' : '未确认'}。双方分别确认实际交接，系统才记为已归还。`));
+    }
+    if (c.canConfirm) actions.append(workflowButton('我已完成实际交接', () => {
+      if (window.confirm('请仅在物品已经实际交接后确认。确认你已完成交接？')) return workflowWrite(`${path}/confirm-return`, {version: c.version, approvalRound: c.approvalRound}, error, renderClaim);
+    }, 'primary'));
+    box.append(actions);
+    const conversation = node('section', 'panel workflow-form'); conversation.append(node('h2', '', '私密对话'));
+    (c.messages || []).forEach(m => {
+      const article = node('article', 'case-message');
+      article.append(node('p', 'muted', `${m.senderName || m.senderId} · ${formatDate(m.createdAt, true)}`), node('p', 'private-text', m.content)); conversation.append(article);
+    });
+    if (!c.messages?.length) conversation.append(node('p', 'muted', '暂无对话。请在此核实独有特征和约定交接，不要在公开公告中填写证据。'));
+    if (c.canMessage) {
+      const form = node('form'); form.noValidate = true;
+      const content = workflowInput(form, '补充说明（1–1,000 个字符）', 'claim-message'); const err = workflowError(form);
+      const submit = node('button', 'button primary', '发送私密说明'); submit.type = 'submit'; form.append(submit);
+      form.addEventListener('submit', e => { e.preventDefault(); if (codePoints(content.value.trim()) < 1 || codePoints(content.value.trim()) > 1000) { err.textContent = '请输入 1–1,000 个字符。'; return; }
+        void workflowWrite(`${path}/messages`, {content: content.value.trim(), version: c.version}, err, renderClaim); }); conversation.append(form);
+    } else conversation.append(node('p', 'muted', '当前记录为只读。历史证据与对话不能修改。'));
+    box.append(conversation);
+    if (c.canReportDispute) box.append(reportForm(`${path}/report-dispute`, '提交争议复核', '说明实际争议；完成前提交将暂停归还确认。归还后提交会保留已归还事实。', () => loadClaim(c.id)));
+    const historyBox = node('section', 'panel workflow-form'); historyBox.append(node('h2', '', '状态历史'));
+    (c.history || []).forEach(h => historyBox.append(node('p', 'muted', `${formatDate(h.occurredAt, true)} · ${h.action} · ${h.previousState || '—'} → ${h.newState || '—'}`)));
+    box.append(historyBox);
+  }
+  function reportForm(path, title, help, saved) {
+    const form = node('form', 'panel workflow-form'); form.noValidate = true;
+    form.append(node('h2', '', title), node('p', 'muted', help), node('p', 'muted', '需要线下帮助时，可自行查阅学校官方渠道选择合适服务，并自行决定提供哪些信息。本平台不代传私密记录，也不承诺校方介入。'));
+    const reason = workflowInput(form, '具体原因（1–1,000 个字符）', `reason-${path.replace(/[^a-zA-Z0-9]/g, '-')}`); const error = workflowError(form);
+    const submit = node('button', 'button secondary', title); submit.type = 'submit'; form.append(submit);
+    form.addEventListener('submit', e => { e.preventDefault(); const count = codePoints(reason.value.trim());
+      if (count < 1 || count > 1000) { error.textContent = '请输入 1–1,000 个字符。'; return; }
+      void workflowWrite(path, {reason: reason.value.trim()}, error, async result => { reason.value = ''; await saved(result); }); });
+    return form;
+  }
+  async function loadNoticeClaims(notice, token) {
+    if (token !== state.routeToken || state.detail?.id !== notice.id || !state.session?.authenticated) return;
+    const panel = $('claims-panel'); panel.replaceChildren();
+    panel.append(reportForm(`/api/notices/${encodeURIComponent(notice.id)}/report`, '举报公告', '仅向复核人员提交。若涉及认领争议，请在私密认领记录中提交。', () => { message('举报已提交，等待指定复核人员处理。'); }));
+    if (notice.type !== 'FOUND') return;
+    const section = node('section', 'panel workflow-form'); section.append(node('h2', '', '认领与审核'));
+    panel.append(section);
+    if (['OPEN', 'CLAIM_UNDER_REVIEW'].includes(notice.status) && !notice.canEdit) {
+      const form = node('form'); form.noValidate = true;
+      form.append(node('p', 'muted', '提供未公开的独有特征。你提交的证据只对双方及指定复核员可见。'));
+      const evidence = workflowInput(form, '私密证据（10–1,000 个字符）', 'claim-evidence');
+      const lost = workflowInput(form, '关联自己的开放丢失公告 ID（选填）', 'claim-lost-id', false);
+      const error = workflowError(form); const submit = node('button', 'button primary', '提交认领'); submit.type = 'submit'; form.append(submit);
+      form.addEventListener('submit', e => { e.preventDefault(); const count = codePoints(evidence.value.trim());
+        if (count < 10 || count > 1000) { error.textContent = '私密证据需 10–1,000 个字符。'; return; }
+        void workflowWrite(`/api/notices/${encodeURIComponent(notice.id)}/claims`, {lostNoticeId: lost.value.trim() || null, evidence: evidence.value.trim()}, error, showClaim); });
+      section.append(form);
+    }
+    try {
+      const cases = await api(`/api/notices/${encodeURIComponent(notice.id)}/claims/mine`);
+      if (token !== state.routeToken || state.detail?.id !== notice.id || !state.session?.authenticated) return;
+      if (cases.length) { section.append(node('h3', 'workflow-subtitle', '你有权查看的认领记录')); cases.forEach(c => section.append(claimCard(c))); }
+      else section.append(node('p', 'muted', '暂无可查看的认领记录。'));
+    } catch (e) { if (token === state.routeToken && !await handleAuthError(e)) section.append(node('p', 'field-error', e.message)); }
+  }
+  async function loadModeration(token = ++state.routeToken) {
+    message('');
+    const box = workflowHeader('举报与争议复核', () => loadModeration());
+    $('claims-nav').removeAttribute('aria-current'); $('moderation-nav').setAttribute('aria-current', 'page');
+    box.append(node('p', 'muted', '先领取复核任务，才可读取私密案情。涉及自己的案件不能领取。处理完成或释放后将撤销该案件的复核访问。'));
+    const reports = await api('/api/moderation/reports');
+    if (token !== state.routeToken || !state.session?.authenticated) return;
+    if (!reports.length) box.append(node('p', 'empty-state', '暂无待处理举报。'));
+    reports.forEach(r => {
+      const card = node('section', 'panel workflow-form'); card.append(node('h2', '', `${r.targetType !== 'NOTICE' ? '认领争议' : '公告举报'} · ${r.status}`), node('p', 'muted', `提交于 ${formatDate(r.createdAt, true)}`));
+      if (r.reason) card.append(node('p', 'private-text', r.reason));
+      if (r.canResolve && r.targetType !== 'NOTICE') card.append(workflowLink('打开获指定的私密案件', `/claims/${encodeURIComponent(r.targetId)}`));
+      if (r.targetTitle) card.append(node('p', 'muted', r.targetTitle));
+      if (r.resolution) card.append(node('p', 'private-text', `${r.resolution}：${r.resolutionNote || ''}`));
+      const form = node('form'); form.noValidate = true;
+      if (r.canAssign || r.canResolve) {
+        const reason = workflowInput(form, '处理说明（必填）', `moderation-note-${r.id}`); const error = workflowError(form);
+        const path = `/api/moderation/reports/${encodeURIComponent(r.id)}`;
+        const action = (suffix, payload) => {
+          if (!reason.value.trim()) { error.textContent = '请填写处理说明。'; return; }
+          return workflowWrite(`${path}/${suffix}`, payload, error, () => loadModeration());
+        };
+        if (r.canAssign) form.append(workflowButton('领取此复核', () => action('assign', {reason: reason.value.trim()}), 'primary'));
+        if (r.canResolve) {
+          const label = node('label', '', '处理结果'); const select = node('select'); select.id = `resolution-${r.id}`; label.htmlFor = select.id;
+          const choices = r.targetType !== 'NOTICE' ? [['DISMISS', '不予处理 / 结束争议'], ['RESUME_COLLECTION', '恢复领取与双方确认'], ['CANCEL_APPROVAL', '撤销批准并释放预留']] : [['DISMISS', '不予处理'], ['HIDE_NOTICE', '隐藏违规公告']];
+          choices.forEach(([value, text]) => { const option = node('option', '', text); option.value = value; select.append(option); });
+          form.append(label, select, workflowButton('提交处理结果', () => {
+            if (window.confirm('确认提交此复核决定？决定和理由将保留审计记录。')) return action('resolve', {resolution: select.value, note: reason.value.trim(), version: r.version});
+          }, 'primary'), workflowButton('释放复核权限', () => action('release', {reason: reason.value.trim()})));
+        }
+        form.addEventListener('submit', e => e.preventDefault()); card.append(form);
+      }
+      box.append(card);
+    });
+  }
+
+
   document.addEventListener('click', event => {
     const link = event.target.closest('a[data-route]');
     if (link && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { event.preventDefault(); navigate(link.dataset.route); }
@@ -1057,7 +1269,7 @@
     catch (_) { message(`Stable link: ${url}`); }
   });
   window.addEventListener('hashchange', () => { void route(); });
-  window.addEventListener('beforeunload', event => { if (editorDirty()) { event.preventDefault(); event.returnValue = ''; } });
+  window.addEventListener('beforeunload', event => { if (editorDirty() || workflowDirty) { event.preventDefault(); event.returnValue = ''; } });
 
   (async () => {
     $('login-fields').disabled = true;
