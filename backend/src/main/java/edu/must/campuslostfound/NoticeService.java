@@ -225,6 +225,22 @@ public class NoticeService {
         record(require(id,false),actor,"ARCHIVE",reason,List.of("status"),old.status(),"ARCHIVED",order+1);
         remember(actor,operation,key,hash,id);return get(id,actor);
     }
+    /** Internal workflow boundary; callers hold commit_order before touching a claim or notice.
+     * Public history receives only a neutral explanation, never private evidence or moderation notes.
+     */
+    void workflowTransition(String id,String status,Boolean hidden,String publicReason,Actor actor,String action) {
+        long order=gate();
+        var rows=db.query("SELECT * FROM notices WHERE id=? FOR UPDATE",this::row,id);
+        if(rows.isEmpty()) throw ApiProblem.missing();
+        Row old=rows.getFirst();
+        String next=status==null?old.status():status;
+        boolean concealed=hidden==null?old.hidden():hidden;
+        db.update("UPDATE notices SET status=?,hidden=?,closed_reason=?,version=version+1,updated_at=? WHERE id=?",
+                next,concealed,"CLOSED".equals(next)?publicReason:old.closeReason(),now(),id);
+        Row changed=db.queryForObject("SELECT * FROM notices WHERE id=?",this::row,id);
+        record(changed,actor,action,publicReason,List.of(hidden==null?"status":"hidden"),old.status(),"WORKFLOW_CHANGED",order+1);
+    }
+
     private void savePhotos(String id,List<PreparedPhoto> photos) {
         for(var p:photos) db.update("INSERT INTO notice_photos(id,notice_id,content_type,data,active) VALUES(?,?,?,?,TRUE)",p.id(),id,p.contentType(),p.data());
     }
@@ -232,6 +248,7 @@ public class NoticeService {
         Map<String,Object> snapshot=new LinkedHashMap<>();
         snapshot.put("type",row.type());snapshot.put("title",row.title());snapshot.put("category",row.category());snapshot.put("occurrenceDate",row.date());
         snapshot.put("approximate",row.approximate());snapshot.put("area",row.area());snapshot.put("description",row.description());snapshot.put("status",row.status());
+        snapshot.put("hidden",row.hidden());
         snapshot.put("photoIds",db.queryForList("SELECT id FROM notice_photos WHERE notice_id=? AND active=TRUE ORDER BY id",String.class,row.id()));
         db.update("INSERT INTO notice_revisions(notice_id,version,action,actor,occurred_at,reason,changed_fields,status,snapshot_json) VALUES(?,?,?,?,?,?,?,?,?)",row.id(),row.version(),action,actor.displayName(),row.updatedAt(),reason,encode(fields),row.status(),encode(snapshot));
         db.update("INSERT INTO notice_events(id,notice_id,kind,version,material_version,trigger_order,created_at) VALUES(?,?,?,?,?,?,?)",UUID.randomUUID().toString(),row.id(),kind,row.version(),row.materialVersion(),order,row.updatedAt());

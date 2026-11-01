@@ -12,14 +12,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Frozen suggestion rule {@code t12-2026-10-25}.
+ * Practice-calibrated suggestion rule {@code t14-2026-11-01}.
  * Sort key, highest first: same category, shared words, area proximity, date closeness.
- * Equal keys use the candidate notice ID ascending. Confidence is explained separately and
- * does not reorder the list. A result is not ownership proof.
+ * Equal keys use the candidate notice ID ascending. Confidence weights do not reorder that list.
+ * A result is not ownership proof. Reserved evaluation cases were not used to choose these weights.
  */
 final class MatchRanker {
-    static final String CONFIG_VERSION = "t12-2026-10-25";
+    static final String CONFIG_VERSION = "t14-2026-11-01";
     static final int LIMIT = 20;
+    static final int ALERT_MIN_CONFIDENCE = 80;
+    static final int HIGH_CONFIDENCE = 80;
+    static final int MEDIUM_CONFIDENCE = 40;
+    static final int PENALTY_DIFFERENT_CATEGORY = 35;
+    static final int PENALTY_NO_SHARED_WORDS = 25;
+    static final int PENALTY_DISTANT_AREA = 25;
+    static final int PENALTY_DISTANT_DATE = 25;
+    static final int PENALTY_APPROXIMATE_DATE = 10;
+    static final int PENALTY_UNSPECIFIED_CATEGORY = 10;
+    static final int PENALTY_UNSPECIFIED_AREA = 10;
     static final String DISCLAIMER = "A suggestion does not prove ownership.";
 
     private static final Pattern CHUNK = Pattern.compile("\\p{IsHan}+|[A-Za-z0-9]+");
@@ -67,28 +77,33 @@ final class MatchRanker {
         List<String> reasons = new ArrayList<>();
         int confidence = 100;
         if (categoryScore == 1) reasons.add("Same category: " + label(source.category()));
-        else { confidence -= 30; reasons.add("A different category lowers confidence"); }
+        else { confidence -= PENALTY_DIFFERENT_CATEGORY; reasons.add("A different category lowers confidence"); }
         if (textScore > 0) reasons.add("Shared words: " + words(source, candidate));
-        else { confidence -= 20; reasons.add("No shared words lowers confidence"); }
+        else { confidence -= PENALTY_NO_SHARED_WORDS; reasons.add("No shared words lowers confidence"); }
         if (areaScore == 2) reasons.add("Same area: " + label(source.area()));
         else if (areaScore == 1) reasons.add("Nearby areas: " + label(source.area()) + " and " + label(candidate.area()));
-        else { confidence -= 15; reasons.add("A distant area lowers confidence"); }
+        else { confidence -= PENALTY_DISTANT_AREA; reasons.add("A distant area lowers confidence"); }
         if (dateScore == 3) reasons.add("Same day");
         else if (dateScore == 2) reasons.add("Dates within 3 days");
         else if (dateScore == 1) reasons.add("Dates within 7 days");
-        else { confidence -= 15; reasons.add("Dates more than 7 days apart lower confidence"); }
+        else { confidence -= PENALTY_DISTANT_DATE; reasons.add("Dates more than 7 days apart lower confidence"); }
         if (source.approximate() || candidate.approximate()) {
-            confidence -= 10; reasons.add("An approximate date lowers confidence");
+            confidence -= PENALTY_APPROXIMATE_DATE; reasons.add("An approximate date lowers confidence");
         }
         if ("OTHER".equals(source.category()) || "OTHER".equals(candidate.category())) {
-            confidence -= 10; reasons.add("An unspecified category lowers confidence");
+            confidence -= PENALTY_UNSPECIFIED_CATEGORY; reasons.add("An unspecified category lowers confidence");
         }
         if ("OTHER".equals(source.area()) || "OTHER".equals(candidate.area())) {
-            confidence -= 10; reasons.add("An unspecified area lowers confidence");
+            confidence -= PENALTY_UNSPECIFIED_AREA; reasons.add("An unspecified area lowers confidence");
         }
         confidence = Math.max(0, confidence);
-        String label = confidence >= 70 ? "High" : confidence >= 40 ? "Medium" : "Low";
-        return new Ranked(candidate, categoryScore, textScore, areaScore, dateScore, confidence, label, List.copyOf(reasons));
+        return new Ranked(candidate, categoryScore, textScore, areaScore, dateScore, confidence, confidenceLabel(confidence), List.copyOf(reasons));
+    }
+
+    static String confidenceLabel(int confidence) {
+        if (confidence >= HIGH_CONFIDENCE) return "High";
+        if (confidence >= MEDIUM_CONFIDENCE) return "Medium";
+        return "Low";
     }
 
     private static String opposite(String type) {

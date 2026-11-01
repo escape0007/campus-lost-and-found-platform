@@ -8,9 +8,9 @@
 
 The project proposal is dated 6 October 2026. Task2 v1.0 was drafted on 15 October; v1.1 integrated the Team7 questionnaire on 18 October, and v1.2 clarified wording, workflow exceptions, alert timing and test conditions on the same date. T03 records shared notice fields and case states; T04 confirms ownership and records reuse candidates and environment constraints.
 
-The current tracker records **18 of 35 tasks complete (51.4%)**. W1 is 5/5, W2 7/7 and W3 4/4; W4 has T12/T13 complete (2/4), while W5/W6 have no completed tasks. The project owner confirmed W2/W3 completion on **1 November 2026**. That is the confirmation date, not a newly inferred completion date. W1 documentation and planning finished on 19 October, with its planned deadline still 20 October.
+The updated task record contains **20 of 35 tasks complete (57.1%)**: W1 5/5, W2 7/7, W3 4/4 and W4 4/4; W5/W6 have no completed tasks. W4 finished early on **1 November 2026**. The project owner specified **25 October** as W2’s actual on-time completion date. W3 completion was confirmed on 1 November; its actual completion date remains unknown. W1 documentation and planning finished on 19 October, with its planned deadline still 20 October.
 
-The main application integrates T08–T13. On 1 November, 59 backend tests and 12 frontend VM checks passed. T15–T18 code is preserved as a separate [W3 submission](../submissions/t15-t18/README.md); T19 remains responsible for safe integration of the complete return workflow. Task delivery and peer-review status do not establish final acceptance. See the [complete task snapshot](progress-2026-11-01.md).
+The main application integrates T08–T19. On 1 November, 78 backend tests and 18 frontend VM checks passed. T14 calibration adds practice-set evidence without using the reserved evaluation set. T19 integrates the complete return workflow; original code remains in the [W3 submission archive](../submissions/t15-t18/README.md). T14 retains its passed review; T19 is delivered and awaiting peer review. Task delivery and automated checks do not establish final acceptance. See the [complete task snapshot](progress-2026-11-01.md).
 
 The customer evidence consists of **two student responses from Team7, collected on 18 October 2026**. One respondent reported a recent loss. Both selected a phone as their likely device. Reporting and search received the most selections, while matching and alerts received none in the priority question; all F1–F5 outcomes nevertheless remain in scope. That question requested three choices per respondent but its export contains seven selections, so it does not establish a reliable full ranking. The sample does not establish campus-wide demand, performance or usability.
 
@@ -30,7 +30,7 @@ All **REQ-1.1–REQ-1.11 are Must requirements** for the first release:
 | REQ-1.10 | Independent confirmation by both parties and atomic linked-notice closure |
 | REQ-1.11 | Reports, assigned moderation, dispute handling and neutral campus-help guidance |
 
-The planned dependency sequence prioritises accounts, reporting and manual search, followed by claims, returns and moderation. T12/T13 matching and alerts were completed early; T19 must still join the modules into a complete return journey. F1–F5 and the original acceptance targets remain in scope.
+The planned dependency sequence prioritises accounts, reporting and manual search, followed by claims, returns and moderation. T12/T13 matching and alerts were completed early; T14 calibration and T19 integration now join the modules into a complete return journey. F1–F5 and the original acceptance targets remain in scope.
 
 The current baseline requires sign-in to browse notices. Private evidence/messages are accessible only to the claimant, found-notice author and assigned moderator. Accounts do not verify university affiliation. A suggested match is not ownership proof, and an archived **Closed** record does not imply **Returned**. Both parties must independently confirm a return; a dispute before completion blocks it.
 
@@ -41,13 +41,13 @@ The release uses phone/laptop browsers. Automatic image recognition, native mobi
 | Week | Calendar dates | Current delivery status and remaining evidence |
 | --- | --- | --- |
 | **W1 — Confirm requirements** | **12–20 October 2026** | **5/5 complete (100%)**: T01–T05 documentation/planning; completed 19 October. |
-| **W2 — Design and reporting** | **19–25 October 2026** | **7/7 complete (100%)**: T06–T11 and T35; design, account/notice implementation, flow review, manual search and requirement follow-up. |
-| **W3 — Claims, returns and moderation** | **26 October–1 November 2026** | **4/4 complete (100%)**: T15–T18 source delivery. The archived implementation requires T19 integration and regression verification. |
-| **W4 — Matching, alerts and integration** | **2–8 November 2026** | **2/4 complete (50%)**: T12/T13 delivered early; T14 practice-case tuning and T19 complete-flow integration not started. |
+| **W2 — Design and reporting** | **19–25 October 2026** | **7/7 complete (100%)**: T06–T11 and T35; completed on 25 October, on time. |
+| **W3 — Claims, returns and moderation** | **26 October–1 November 2026** | **4/4 complete (100%)**: T15–T18 source delivery, now integrated and regression-tested under T19; original files remain archived. |
+| **W4 — Matching, alerts and integration** | **2–8 November 2026** | **4/4 complete (100%)**: T12/T13, T14 practice calibration and T19 complete-flow integration delivered early on 1 November; T19 awaits peer review. |
 | **W5 — Evaluation and revision** | **9–15 November 2026** | **0/10 complete**: T20–T25 and T31–T34; frozen evaluations, six-person usability, privacy/concurrency, quality checks and retests. |
 | **W6 — Delivery preparation** | **16–22 November 2026** | **0/5 complete**: T26–T30; guide/UML, code and evidence review, rehearsal, website and final handover. |
 
-Week boundaries are preserved from the current weekly tracker. W1's extended deadline on 20 October overlaps W2's 19 October start; individual task deadlines do not change those week boundaries. Task deadlines are listed separately in the [task snapshot](progress-2026-11-01.md). W2/W3 completion was confirmed on 1 November; no unsupported actual completion date has been added. Quality work continues during implementation, with formal evaluation planned for W5.
+Week boundaries are preserved from the current weekly tracker. W1's extended deadline on 20 October overlaps W2's 19 October start; individual task deadlines do not change those week boundaries. Task deadlines are listed separately in the [task snapshot](progress-2026-11-01.md). W2 actually finished on 25 October, as specified by the owner; W3’s 1 November confirmation is not used as an inferred actual completion date. Quality work continues during implementation, with formal evaluation planned for W5.
 
 ## Ownership and review
 
@@ -100,7 +100,7 @@ T04 recorded the original technology candidates. The integrated application now 
 | Accounts | Spring Security, BCrypt, sessions and CSRF; tested account and cookie flows | Full AT-13 security and deployment checks |
 | Images | JPEG/PNG validation and pixel re-encoding; database BLOB storage | Full upload/security and capacity evaluation |
 | Storage | JDBC and local H2; PostgreSQL driver supplied | PostgreSQL runtime, backup/restore and capacity evidence |
-| Domain logic | Main application T08–T13; separate T15–T18 submission | T19 shared-state/permission/concurrency integration, followed by complete acceptance |
+| Domain logic | T08–T19 integrated, including T14 calibration and T15–T18 claim/return/moderation workflows | Peer review and formal W5 acceptance; see the [T19 integration report](T19_联调与测试说明.txt) |
 
 The reference test proposal is at least **4 logical cores, 8 GB RAM and 40 GB free active-data space**. A specific machine, network and browser versions still need to be recorded. Network-accessible deployments require HTTPS; a written local demonstration fallback must remain available.
 
@@ -108,4 +108,4 @@ At maximum photo limits, images alone could occupy about **30 GB**. T04 estimate
 
 ## Source record
 
-This public summary draws on the team's Task1 proposal (6 October 2026), Task2 SRS v1.2 (18 October 2026), T03 shared notice/state design, T04 responsibilities/reuse document, the latest Feishu task statuses, the owner’s 1 November W2/W3 completion confirmation, and the downloaded T11–T18 source deliveries. The original course files and internal tracker are retained by the team; this repository publishes summaries without student numbers, private contact details or internal links.
+This public summary draws on the team's Task1 proposal (6 October 2026), Task2 SRS v1.2 (18 October 2026), T03 shared notice/state design, T04 responsibilities/reuse document, the latest Feishu task statuses, the owner’s W2/W3 completion confirmation and W2 actual-date correction, the downloaded T11–T18 source deliveries, and T19 integration evidence. The original course files and internal tracker are retained by the team; this repository publishes summaries without student numbers, private contact details or internal links.

@@ -92,7 +92,7 @@ class T12MatchIntegrationTest {
         long started = System.nanoTime();
         JsonNode page = suggestions(reader, lost);
         assertThat(Duration.ofNanos(System.nanoTime() - started)).isLessThan(Duration.ofSeconds(10));
-        assertThat(page.path("configVersion").asText()).isEqualTo("t12-2026-10-25");
+        assertThat(page.path("configVersion").asText()).isEqualTo("t14-2026-11-01");
         assertThat(page.path("disclaimer").asText()).contains("not prove ownership");
         assertThat(page.path("eligible").asBoolean()).isTrue();
         assertThat(ids(page)).containsExactly(found, keys);
@@ -158,7 +158,7 @@ class T12MatchIntegrationTest {
         assertThat(page.path("totalEligible").asInt()).isEqualTo(21);
         assertThat(page.path("limited").asBoolean()).isTrue();
         assertThat(ids(page)).containsExactlyElementsOf(found.subList(0, 20));
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_candidates WHERE config_version='t12-2026-10-25'", Integer.class)).isEqualTo(20);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_candidates WHERE config_version='t14-2026-11-01'", Integer.class)).isEqualTo(20);
     }
 
     private JsonNode suggestions(BrowserSession reader, String id) throws Exception {

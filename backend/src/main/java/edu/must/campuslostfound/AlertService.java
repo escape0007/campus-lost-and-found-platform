@@ -22,15 +22,14 @@ import static edu.must.campuslostfound.MatchRanker.rank;
 import static edu.must.campuslostfound.NoticeModels.Actor;
 
 /**
- * In-site new-match alerts. {@code t13-2026-10-25} is an unconfirmed proposal:
- * the suggested default is New-match alerts, and only High confidence (at least 70)
- * creates an alert. Ranking itself stays on {@code t12-2026-10-25}.
+ * In-site new-match alerts. Threshold and confidence weights are the practice-calibrated
+ * {@code t14-2026-11-01} configuration. New-match alerts remains the unconfirmed proposed default.
  * Eligibility uses the stored trigger order, never the time a delayed retry runs.
  */
 @Service
 public class AlertService {
-    static final String CONFIG_VERSION = "t13-2026-10-25";
-    static final int ALERT_MIN_CONFIDENCE = 70;
+    static final String CONFIG_VERSION = MatchRanker.CONFIG_VERSION;
+    static final int ALERT_MIN_CONFIDENCE = MatchRanker.ALERT_MIN_CONFIDENCE;
     static final int LIMIT = 50;
     static final String DISCLAIMER = "An alert does not prove ownership.";
     private static final String DEFAULT_NOTE = "New-match alerts is the proposed default. Team7 has not confirmed it.";
@@ -268,7 +267,7 @@ public class AlertService {
         boolean lostHidden = rs.getBoolean("lost_hidden");
         boolean foundHidden = rs.getBoolean("found_hidden");
         int confidence = rs.getInt("confidence");
-        String label = confidence >= 70 ? "High" : confidence >= 40 ? "Medium" : "Low";
+        String label = MatchRanker.confidenceLabel(confidence);
         return new AlertItem(rs.getString("id"), rs.getString("lost_id"), rs.getString("found_id"),
                 lostHidden ? "" : rs.getString("lost_title"), foundHidden ? "" : rs.getString("found_title"),
                 rs.getString("lost_status"), rs.getString("found_status"), lostHidden, foundHidden,

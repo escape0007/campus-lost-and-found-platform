@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS idempotency_records (
  request_hash VARCHAR(64) NOT NULL, notice_id VARCHAR(36) NOT NULL REFERENCES notices(id),
  PRIMARY KEY(actor_id,operation,request_key)
 );
--- Integration seam for the future claim/workflow module. No public fixture/state-write endpoints.
+-- Shared guards populated by the claim workflow. No public fixture/state-write endpoints.
 CREATE TABLE IF NOT EXISTS claim_guards (
  id VARCHAR(36) PRIMARY KEY, found_id VARCHAR(36) NOT NULL REFERENCES notices(id),
  lost_id VARCHAR(36) REFERENCES notices(id), status VARCHAR(30) NOT NULL
@@ -123,4 +123,70 @@ CREATE TABLE IF NOT EXISTS account_audit (
  target VARCHAR(80) NOT NULL,
  outcome VARCHAR(20) NOT NULL,
  occurred_at VARCHAR(40) NOT NULL
+);
+
+-- T15–T18 integrated workflow. Private evidence/messages never join public notice DTOs.
+CREATE TABLE IF NOT EXISTS claims (
+ id VARCHAR(36) PRIMARY KEY,
+ found_notice_id VARCHAR(36) NOT NULL REFERENCES notices(id),
+ finder_id VARCHAR(80) NOT NULL, claimant_id VARCHAR(80) NOT NULL,
+ lost_notice_id VARCHAR(36) REFERENCES notices(id), evidence VARCHAR(4000) NOT NULL,
+ status VARCHAR(20) NOT NULL CHECK(status IN ('PENDING','HELD','APPROVED','REJECTED','WITHDRAWN','ITEM_RETURNED')),
+ decision_reason VARCHAR(4000), finder_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+ claimant_confirmed BOOLEAN NOT NULL DEFAULT FALSE, disputed BOOLEAN NOT NULL DEFAULT FALSE,
+ dispute_reason VARCHAR(4000), version BIGINT NOT NULL DEFAULT 1, approval_round INT NOT NULL DEFAULT 0,
+ created_at VARCHAR(40) NOT NULL, decided_at VARCHAR(40), completed_at VARCHAR(40),
+ CHECK(finder_id <> claimant_id)
+);
+CREATE INDEX IF NOT EXISTS idx_claim_found ON claims(found_notice_id,status);
+CREATE INDEX IF NOT EXISTS idx_claim_lost ON claims(lost_notice_id,status);
+CREATE INDEX IF NOT EXISTS idx_claim_claimant ON claims(claimant_id,status);
+CREATE TABLE IF NOT EXISTS case_messages (
+ id VARCHAR(36) PRIMARY KEY, claim_id VARCHAR(36) NOT NULL REFERENCES claims(id),
+ sender_id VARCHAR(80) NOT NULL, sender_role VARCHAR(20) NOT NULL,
+ sequence BIGINT NOT NULL, content VARCHAR(4000) NOT NULL, created_at VARCHAR(40) NOT NULL,
+ UNIQUE(claim_id,sequence)
+);
+CREATE TABLE IF NOT EXISTS claim_decisions (
+ id VARCHAR(36) PRIMARY KEY, claim_id VARCHAR(36) NOT NULL REFERENCES claims(id),
+ actor_id VARCHAR(80) NOT NULL, action VARCHAR(30) NOT NULL, reason VARCHAR(4000) NOT NULL,
+ approval_round INT NOT NULL, created_at VARCHAR(40) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS return_confirmations (
+ claim_id VARCHAR(36) NOT NULL REFERENCES claims(id), approval_round INT NOT NULL,
+ party VARCHAR(20) NOT NULL CHECK(party IN ('FINDER','CLAIMANT')),
+ actor_id VARCHAR(80) NOT NULL, confirmed_at VARCHAR(40) NOT NULL, invalidated_at VARCHAR(40),
+ PRIMARY KEY(claim_id,approval_round,party)
+);
+CREATE TABLE IF NOT EXISTS reports (
+ id VARCHAR(36) PRIMARY KEY,
+ notice_id VARCHAR(36) REFERENCES notices(id), claim_id VARCHAR(36) REFERENCES claims(id),
+ reporter_id VARCHAR(80) NOT NULL, reason VARCHAR(4000) NOT NULL,
+ status VARCHAR(20) NOT NULL DEFAULT 'OPEN' CHECK(status IN ('OPEN','RESOLVED','DISMISSED')),
+ resolution VARCHAR(30), moderator_id VARCHAR(80), resolution_note VARCHAR(4000),
+ version BIGINT NOT NULL DEFAULT 1, created_at VARCHAR(40) NOT NULL, resolved_at VARCHAR(40),
+ CHECK((notice_id IS NOT NULL AND claim_id IS NULL) OR (notice_id IS NULL AND claim_id IS NOT NULL))
+);
+CREATE INDEX IF NOT EXISTS idx_report_status ON reports(status,created_at);
+CREATE TABLE IF NOT EXISTS review_assignments (
+ id VARCHAR(36) PRIMARY KEY,
+ notice_id VARCHAR(36) REFERENCES notices(id), claim_id VARCHAR(36) REFERENCES claims(id),
+ moderator_id VARCHAR(80) NOT NULL, assigned_by VARCHAR(80) NOT NULL,
+ reason VARCHAR(4000) NOT NULL, assigned_at VARCHAR(40) NOT NULL, revoked_at VARCHAR(40), revoked_reason VARCHAR(4000),
+ active_target_key VARCHAR(80) UNIQUE,
+ CHECK((notice_id IS NOT NULL AND claim_id IS NULL) OR (notice_id IS NULL AND claim_id IS NOT NULL))
+);
+CREATE TABLE IF NOT EXISTS claim_audit (
+ id VARCHAR(36) PRIMARY KEY, claim_id VARCHAR(36) REFERENCES claims(id),
+ actor_id VARCHAR(80) NOT NULL, action VARCHAR(40) NOT NULL,
+ previous_state VARCHAR(30), new_state VARCHAR(30), occurred_at VARCHAR(40) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS moderation_audit (
+ id VARCHAR(36) PRIMARY KEY, report_id VARCHAR(36) NOT NULL REFERENCES reports(id),
+ actor_id VARCHAR(80) NOT NULL, action VARCHAR(40) NOT NULL, occurred_at VARCHAR(40) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS claim_requests (
+ actor_id VARCHAR(80) NOT NULL, operation VARCHAR(100) NOT NULL, request_key VARCHAR(128) NOT NULL,
+ request_hash VARCHAR(64) NOT NULL, outcome_reference VARCHAR(36) NOT NULL, created_at VARCHAR(40) NOT NULL,
+ PRIMARY KEY(actor_id,operation,request_key)
 );
