@@ -1,0 +1,299 @@
+{
+  "synced_on": "2026-11-01",
+  "origin": "Feishu T18 成果附件 T15-T18.zip",
+  "source_archive_sha256": "47ac753851f9f49c3fdc3c0a73eafc7e546d11b2cb74ea251d9997bbbf7468b6",
+  "excluded": [
+    {
+      "path": "campus-lost-found-0.1.0.jar",
+      "reason": "Generated executable; source preserved, original attachment retained in Feishu."
+    }
+  ],
+  "files": [
+    {
+      "path": "snapshot/pom.xml",
+      "bytes": 1703,
+      "sha256": "74444b37421f684e2889fbd5c6ec5194348d2beac42f670c8bfbdcf6180b0511",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/AccountAuthenticationProvider.java",
+      "bytes": 1528,
+      "sha256": "abaf6ed7883eabf54a52333d6b61dde1c74ba1739a5d33a5be40b68848a39410",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/AccountController.java",
+      "bytes": 2510,
+      "sha256": "cae8bc19898ca4d8f821a1dcee4a22afee2d39868466fb32c8cd5011223cf90c",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/AccountService.java",
+      "bytes": 9778,
+      "sha256": "04d9c1b993142d154c6f65335a27fcae46db553af50d25ac446a5b00d5598d9f",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/ApiProblem.java",
+      "bytes": 1081,
+      "sha256": "dcee1141aa7be3bd9dbd5692c6420f849b9a198a80fa197d2d53c928fe449e4f",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/CampusLostFoundApplication.java",
+      "bytes": 667,
+      "sha256": "da95324783482ddae487ffe57426897f765400d9ae0d8574bae531e8f76a1a59",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/ClaimController.java",
+      "bytes": 3780,
+      "sha256": "5bfe79a5ea844001da25d0e4e9f0df9f45406dcfae62123b9f6e86a5374ae5a2",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/ClaimModels.java",
+      "bytes": 1212,
+      "sha256": "e514d59534135dc14b84960466904abbeb7e44b325de6a0ce9cc470f02cce7c4",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/ClaimService.java",
+      "bytes": 11053,
+      "sha256": "1b32bb63866c996a360fd1b0d9141f125a8011449a52da6c29e14dce9d49bcd0",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/ModerationService.java",
+      "bytes": 4435,
+      "sha256": "9eaeca57ae2c3f430d61471ac5c10b9d05caf1bdcaefca57303d44a7484e482e",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/NoticeController.java",
+      "bytes": 3580,
+      "sha256": "4eafea4bdee7e4bed0f08253e04f892277663ef7202dca0cd5c0c90463cdc5e4",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/NoticeModels.java",
+      "bytes": 1190,
+      "sha256": "b997fc89918953098ddbceef88d810036e970ed457518c3aded9cf32bc70187c",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/NoticeService.java",
+      "bytes": 16835,
+      "sha256": "af8cbff331519e96a2f501dd811125eef3f0c6320db678cc4d2a91a04b7b303a",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/PhotoProcessor.java",
+      "bytes": 3549,
+      "sha256": "ec6991dcd19599949db032dadcd02cce59f436b9dc7138bf4470f1e5f4cd0fe1",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/ProblemHandler.java",
+      "bytes": 2779,
+      "sha256": "d176c6e8066917a4d16f576d75f744dd66f2e7cf4aef32d53ba2c7b7cf69145a",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/java/edu/must/campuslostfound/SecurityConfig.java",
+      "bytes": 3779,
+      "sha256": "2338544e28300b7c14a1d8fdb01ee6a74ed7b33b2de7789de4923839333c7264",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/resources/application.properties",
+      "bytes": 697,
+      "sha256": "21af4d79cdd1445102c21586a73d7fa783fda51186b1b9ecc0494cbda3945da5",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/resources/schema.sql",
+      "bytes": 6010,
+      "sha256": "0889566fa8ed149d522511879c1f6d6216638cfad2086070693c92d8e2adf7f7",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/resources/static/app/app.css",
+      "bytes": 14890,
+      "sha256": "7641e06fd189adb6dc09cb50bb1239868683dc3b5b3bbae87fd96672bc9db410",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/resources/static/app/app.js",
+      "bytes": 47451,
+      "sha256": "26dc175d66d9737a4d358ed72d9054c1ffc37c402c797e0261731143990a4b84",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/main/resources/static/app/index.html",
+      "bytes": 14161,
+      "sha256": "266c39f980fc08b5ec201b2b086496320ae580dd00e40922795f7e2cc28bc9ed",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/test/java/edu/must/campuslostfound/AccountApiIntegrationTest.java",
+      "bytes": 19314,
+      "sha256": "2e61185b160ca2573a33ed9d975029a349fb91aa05efd29de50af0078abc78ee",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/test/java/edu/must/campuslostfound/NoticeApiIntegrationTest.java",
+      "bytes": 37770,
+      "sha256": "4eb5ac0bac5bf175541b6c8b0423a5c29e24e568beb98d0cf5531e91f3840511",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/test/java/edu/must/campuslostfound/SessionCookieHttpTest.java",
+      "bytes": 3739,
+      "sha256": "15a59c03f34dde9f0e55ce3eecafefe9193aa01d18cff764f19788609cff3547",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/test/java/edu/must/campuslostfound/TestAccountSeeder.java",
+      "bytes": 1532,
+      "sha256": "2d30bd20c660e453bbc16bbf9f395700257e331df25b594f69198828ca6e16ab",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/test/resources/application-test.properties",
+      "bytes": 381,
+      "sha256": "797f91f5137a6745db32ce108297f1f3f9aa5864d635c09d39c37a50249dfdda",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker",
+      "bytes": 20,
+      "sha256": "8eca853a5a457f17e0479b71dfbe95f2a13aff9eeff250261ecdc8ca9b847a6a",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "snapshot/启动T15-T19.bat",
+      "bytes": 175,
+      "sha256": "a72cbfe7e3d51293c83789e30328c15c79b98b921fe77d21f947ce981d29e859",
+      "source": "T15-T18.zip"
+    },
+    {
+      "path": "individual/T15/ClaimModels.java",
+      "bytes": 1212,
+      "sha256": "e514d59534135dc14b84960466904abbeb7e44b325de6a0ce9cc470f02cce7c4",
+      "source": "Feishu T15 成果附件 ClaimModels.java"
+    },
+    {
+      "path": "individual/T15/ClaimService.java",
+      "bytes": 11053,
+      "sha256": "1b32bb63866c996a360fd1b0d9141f125a8011449a52da6c29e14dce9d49bcd0",
+      "source": "Feishu T15 成果附件 ClaimService.java"
+    },
+    {
+      "path": "individual/T15/schema.sql",
+      "bytes": 6010,
+      "sha256": "0889566fa8ed149d522511879c1f6d6216638cfad2086070693c92d8e2adf7f7",
+      "source": "Feishu T15 成果附件 schema.sql"
+    },
+    {
+      "path": "individual/T16/ClaimService.java",
+      "bytes": 16130,
+      "sha256": "576776076a430b80823118cef47e610ccc1dfbef1be5005884dcb00f7d5a4e69",
+      "source": "Feishu T16 成果附件 ClaimService.java"
+    },
+    {
+      "path": "individual/T16/ConcurrentApproveTest.java",
+      "bytes": 3007,
+      "sha256": "88295037ff42672aa886de3a54ce8154b7b298286bdf429633a2df05d87a1756",
+      "source": "Feishu T16 成果附件 ConcurrentApproveTest.java"
+    },
+    {
+      "path": "individual/T17/ClaimService.java",
+      "bytes": 16130,
+      "sha256": "576776076a430b80823118cef47e610ccc1dfbef1be5005884dcb00f7d5a4e69",
+      "source": "Feishu T17 成果附件 ClaimService.java"
+    },
+    {
+      "path": "individual/T18/ClaimController.java",
+      "bytes": 3963,
+      "sha256": "b868f03e7670d2878132d96c145e3b65e6fde1ef0d3d0aa2e8cb571fbf8c81e1",
+      "source": "Feishu T18 成果附件 ClaimController.java"
+    },
+    {
+      "path": "individual/T18/ModerationService.java",
+      "bytes": 6058,
+      "sha256": "8aeebd3e5b568637dc26bed353c4f6ca0811f58cbebfa0ba3088f3cb60b9bd4b",
+      "source": "Feishu T18 成果附件 ModerationService.java"
+    }
+  ],
+  "individual_comparison": [
+    {
+      "attachment": "T15/ClaimModels.java",
+      "matches_snapshot": true,
+      "snapshot_paths": [
+        "snapshot/src/main/java/edu/must/campuslostfound/ClaimModels.java"
+      ],
+      "matching_paths": [
+        "snapshot/src/main/java/edu/must/campuslostfound/ClaimModels.java"
+      ]
+    },
+    {
+      "attachment": "T15/ClaimService.java",
+      "matches_snapshot": true,
+      "snapshot_paths": [
+        "snapshot/src/main/java/edu/must/campuslostfound/ClaimService.java"
+      ],
+      "matching_paths": [
+        "snapshot/src/main/java/edu/must/campuslostfound/ClaimService.java"
+      ]
+    },
+    {
+      "attachment": "T15/schema.sql",
+      "matches_snapshot": true,
+      "snapshot_paths": [
+        "snapshot/src/main/resources/schema.sql"
+      ],
+      "matching_paths": [
+        "snapshot/src/main/resources/schema.sql"
+      ]
+    },
+    {
+      "attachment": "T16/ClaimService.java",
+      "matches_snapshot": false,
+      "snapshot_paths": [
+        "snapshot/src/main/java/edu/must/campuslostfound/ClaimService.java"
+      ],
+      "matching_paths": []
+    },
+    {
+      "attachment": "T16/ConcurrentApproveTest.java",
+      "matches_snapshot": false,
+      "snapshot_paths": [],
+      "matching_paths": []
+    },
+    {
+      "attachment": "T17/ClaimService.java",
+      "matches_snapshot": false,
+      "snapshot_paths": [
+        "snapshot/src/main/java/edu/must/campuslostfound/ClaimService.java"
+      ],
+      "matching_paths": []
+    },
+    {
+      "attachment": "T18/ClaimController.java",
+      "matches_snapshot": false,
+      "snapshot_paths": [
+        "snapshot/src/main/java/edu/must/campuslostfound/ClaimController.java"
+      ],
+      "matching_paths": []
+    },
+    {
+      "attachment": "T18/ModerationService.java",
+      "matches_snapshot": false,
+      "snapshot_paths": [
+        "snapshot/src/main/java/edu/must/campuslostfound/ModerationService.java"
+      ],
+      "matching_paths": []
+    }
+  ]
+}

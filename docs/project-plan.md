@@ -1,18 +1,20 @@
 # Project Plan and Requirements Summary
 
 **Project:** Campus Lost and Found Platform · D1-Team8 · 菜鸟驿站  
-**Public summary updated:** 19 October 2026  
+**Public summary updated:** 1 November 2026  
 **Requirements baseline:** Task2 SRS v1.2, 18 October 2026
 
 ## Evidence and document status
 
 The project proposal is dated 6 October 2026. Task2 v1.0 was drafted on 15 October; v1.1 integrated the Team7 questionnaire on 18 October, and v1.2 clarified wording, workflow exceptions, alert timing and test conditions on the same date. T03 records shared notice fields and case states; T04 confirms ownership and records reuse candidates and environment constraints.
 
-The latest tracker records **T01–T05 as completed with review passed: 5/5 tasks (100%)**, with W1 documentation and planning completed on **19 October 2026**. This includes the T05 project website and plan update. The planned W1 deadline remains 20 October. This completion refers to documentation and planning; application functions, component integration and acceptance results remain unverified.
+The current tracker records **18 of 35 tasks complete (51.4%)**. W1 is 5/5, W2 7/7 and W3 4/4; W4 has T12/T13 complete (2/4), while W5/W6 have no completed tasks. The project owner confirmed W2/W3 completion on **1 November 2026**. That is the confirmation date, not a newly inferred completion date. W1 documentation and planning finished on 19 October, with its planned deadline still 20 October.
+
+The main application integrates T08–T13. On 1 November, 59 backend tests and 12 frontend VM checks passed. T15–T18 code is preserved as a separate [W3 submission](../submissions/t15-t18/README.md); T19 remains responsible for safe integration of the complete return workflow. Task delivery and peer-review status do not establish final acceptance. See the [complete task snapshot](progress-2026-11-01.md).
 
 The customer evidence consists of **two student responses from Team7, collected on 18 October 2026**. One respondent reported a recent loss. Both selected a phone as their likely device. Reporting and search received the most selections, while matching and alerts received none in the priority question; all F1–F5 outcomes nevertheless remain in scope. That question requested three choices per respondent but its export contains seven selections, so it does not establish a reliable full ranking. The sample does not establish campus-wide demand, performance or usability.
 
-The six volunteers in the future usability protocol are not six completed customer interviews. No acceptance test results are reported in these source documents.
+The six volunteers in the future usability protocol are not six completed customer interviews. The automated regression results recorded here do not substitute for that protocol or the reserved matching evaluation.
 
 ## Scope and implementation order
 
@@ -28,7 +30,7 @@ All **REQ-1.1–REQ-1.11 are Must requirements** for the first release:
 | REQ-1.10 | Independent confirmation by both parties and atomic linked-notice closure |
 | REQ-1.11 | Reports, assigned moderation, dispute handling and neutral campus-help guidance |
 
-Build accounts, reporting and manual search first; claims, returns and moderation next; matching and alerts after the core return flow. This changes implementation order from the proposal, without dropping F1–F5 or the original acceptance targets.
+The planned dependency sequence prioritises accounts, reporting and manual search, followed by claims, returns and moderation. T12/T13 matching and alerts were completed early; T19 must still join the modules into a complete return journey. F1–F5 and the original acceptance targets remain in scope.
 
 The current baseline requires sign-in to browse notices. Private evidence/messages are accessible only to the claimant, found-notice author and assigned moderator. Accounts do not verify university affiliation. A suggested match is not ownership proof, and an archived **Closed** record does not imply **Returned**. Both parties must independently confirm a return; a dispute before completion blocks it.
 
@@ -36,16 +38,16 @@ The release uses phone/laptop browsers. Automatic image recognition, native mobi
 
 ## Six-week delivery plan
 
-| Week | Calendar dates | Planned work and evidence |
+| Week | Calendar dates | Current delivery status and remaining evidence |
 | --- | --- | --- |
-| **W1 — Confirm requirements** | **12–20 October 2026** | Team7 survey analysis and SRS v1.2; first-release scope, notice fields, states and responsibilities; reuse candidates; information website and plan. **Documentation/planning delivered and reviewed: 5/5 (100%), completed 19 October.** Business functions and acceptance tests remain unverified. |
-| **W2 — Design and reporting** | **19–25 October 2026** | Produce UML use-case/state diagrams, modules and mobile page sketches; build accounts, reporting, basic browsing and manual search; review outstanding decisions with Team7. |
-| **W3 — Claims, returns and moderation** | **26 October–1 November 2026** | Implement private evidence and conversations, claim decisions, atomic single approval, two-party return confirmation, assigned review and dispute handling; demonstrate the core return flow without requiring matching. |
-| **W4 — Matching, alerts and integration** | **2–8 November 2026** | Add explained ranking, alert preferences and deduplication; calibrate with practice cases; integrate manual-search and suggested-match journeys with claims and linked closure. |
-| **W5 — Evaluation and revision** | **9–15 November 2026** | Freeze matching rules and reserved cases; run matching, six-volunteer, concurrent-approval, privacy and quality checks; record first results, fix failures and label retests separately. |
-| **W6 — Delivery preparation** | **16–22 November 2026** | Finish the user guide, UML and installation instructions; review source and evidence; reproduce the demonstration; rehearse, prepare an offline fallback and disclose known limitations. |
+| **W1 — Confirm requirements** | **12–20 October 2026** | **5/5 complete (100%)**: T01–T05 documentation/planning; completed 19 October. |
+| **W2 — Design and reporting** | **19–25 October 2026** | **7/7 complete (100%)**: T06–T11 and T35; design, account/notice implementation, flow review, manual search and requirement follow-up. |
+| **W3 — Claims, returns and moderation** | **26 October–1 November 2026** | **4/4 complete (100%)**: T15–T18 source delivery. The archived implementation requires T19 integration and regression verification. |
+| **W4 — Matching, alerts and integration** | **2–8 November 2026** | **2/4 complete (50%)**: T12/T13 delivered early; T14 practice-case tuning and T19 complete-flow integration not started. |
+| **W5 — Evaluation and revision** | **9–15 November 2026** | **0/10 complete**: T20–T25 and T31–T34; frozen evaluations, six-person usability, privacy/concurrency, quality checks and retests. |
+| **W6 — Delivery preparation** | **16–22 November 2026** | **0/5 complete**: T26–T30; guide/UML, code and evidence review, rehearsal, website and final handover. |
 
-The W1 deadline was changed to **20 October 2026** at the project owner's request on 18 October. W2 still starts on 19 October: the two-day overlap reflects the W1 deadline adjustment, not a shift of the other weeks. All remaining week boundaries are retained. Performance, security, accessibility and recovery work should be addressed during implementation before final verification in W5.
+Week boundaries are preserved from the current weekly tracker. W1's extended deadline on 20 October overlaps W2's 19 October start; individual task deadlines do not change those week boundaries. Task deadlines are listed separately in the [task snapshot](progress-2026-11-01.md). W2/W3 completion was confirmed on 1 November; no unsupported actual completion date has been added. Quality work continues during implementation, with formal evaluation planned for W5.
 
 ## Ownership and review
 
@@ -57,9 +59,11 @@ The W1 deadline was changed to **20 October 2026** at the project owner's reques
 
 Rotating pairs check reporting/discovery, matching/claims and returns/moderation. Pair work does not transfer the owner's accountability. Every member contributes to requirements, design, programming, tests, documentation and presentation. The proposal allocates eight hours per member per week: approximately **144 person-hours over six weeks**.
 
-## Decisions awaiting Team7 review
+## Decision evidence and items to verify
 
-| Topic | Current baseline or proposal | Confirmation still required |
+T35 is recorded as complete and peer-reviewed in Feishu. The source attachments available for this sync do not establish the final answer to each policy below. Keep the existing baseline until the corresponding decision record is linked; a completed follow-up task alone is not approval of every proposal.
+
+| Topic | Current baseline or proposal | Decision evidence to verify |
 | --- | --- | --- |
 | Access and visibility | Sign-in required; no public contact fields; private-case access is limited to the claimant, found-notice author and assigned moderator | Guest browsing, notice audiences and moderator access, because the survey choices are mixed |
 | Claims and disputes | Two-party confirmation, one approval, held competing claims and assigned dispute review | Approved-cancellation rules, held-claim behaviour and dispute exceptions |
@@ -88,15 +92,15 @@ Record the first evaluation results, failures and limitations. Later fixes and r
 
 ## Technical candidates and unresolved checks
 
-T04 retains a **Java-based** implementation direction and records the following candidates. They have not been adopted, installed or validated by this documentation update.
+T04 recorded the original technology candidates. The integrated application now provides concrete implementation evidence:
 
-| Purpose | Candidate recorded in T04 | Outstanding evidence |
+| Area | Current implementation | Outstanding verification |
 | --- | --- | --- |
-| Runtime/build/framework | Eclipse Temurin 21, Apache Maven, Spring Boot 3.x | Pin exact versions, archive licence texts, scan transitive dependencies and verify the environment |
-| Accounts | Spring Security and BCrypt | Integrate authentication and permissions; measure a suitable BCrypt work factor and verify session behaviour |
-| Images | Apache Tika and Apache Commons Imaging | Verify actual JPEG/PNG content, corruption/size checks, location-metadata removal and authorised reads |
-| Storage | PostgreSQL 16 with JDBC; generated image filenames in a local directory | Design schema and transactions; verify atomic approval/closure, private-file authorisation and restore behaviour |
-| Domain logic | Team-written matching, alerts, claims and returns | Implement and test the requirements rather than delegate their rules to a generic recommendation/message component |
+| Runtime/build/framework | Java release 21; verified JDK 25.0.2, Maven 3.9.16 and Spring Boot 3.5.16 | Java 21 runtime and dependency/licence review |
+| Accounts | Spring Security, BCrypt, sessions and CSRF; tested account and cookie flows | Full AT-13 security and deployment checks |
+| Images | JPEG/PNG validation and pixel re-encoding; database BLOB storage | Full upload/security and capacity evaluation |
+| Storage | JDBC and local H2; PostgreSQL driver supplied | PostgreSQL runtime, backup/restore and capacity evidence |
+| Domain logic | Main application T08–T13; separate T15–T18 submission | T19 shared-state/permission/concurrency integration, followed by complete acceptance |
 
 The reference test proposal is at least **4 logical cores, 8 GB RAM and 40 GB free active-data space**. A specific machine, network and browser versions still need to be recorded. Network-accessible deployments require HTTPS; a written local demonstration fallback must remain available.
 
@@ -104,4 +108,4 @@ At maximum photo limits, images alone could occupy about **30 GB**. T04 estimate
 
 ## Source record
 
-This public summary draws on the team's Task1 proposal (6 October 2026), Task2 SRS v1.2 (18 October 2026), T03 shared notice/state design, T04 responsibilities/reuse document, and the reviewed task statuses current on 19 October. The original course files and internal tracker are retained by the team; this repository publishes summaries without student numbers, private contact details or internal links.
+This public summary draws on the team's Task1 proposal (6 October 2026), Task2 SRS v1.2 (18 October 2026), T03 shared notice/state design, T04 responsibilities/reuse document, the latest Feishu task statuses, the owner’s 1 November W2/W3 completion confirmation, and the downloaded T11–T18 source deliveries. The original course files and internal tracker are retained by the team; this repository publishes summaries without student numbers, private contact details or internal links.
